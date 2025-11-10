@@ -1,5 +1,6 @@
 import 'package:avalia/screens/components/card_exams_screens.dart';
 import 'package:avalia/screens/details_exams_student_screens.dart';
+import 'package:avalia/screens/student_detail_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:avalia/screens/components/card_student_class.dart';
 
@@ -75,7 +76,7 @@ class ClassDetailScreens extends StatelessWidget {
                                 onTap: (){
                                   Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => DetailsExamsStudentScreens()),
+              MaterialPageRoute(builder: (context) => StudentDetailScreens()),
             );
                                 },
                                 child: StudentClassCard(),

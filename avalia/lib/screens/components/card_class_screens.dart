@@ -11,12 +11,10 @@ class TestScreens extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-               
-                color: Colors.white,
-              ),
+    return Card(
+      color: Colors.white,
+      child: Padding(
+              padding: EdgeInsets.all(8.0),
               child:  Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Row(
@@ -48,7 +46,8 @@ class TestScreens extends StatelessWidget {
                         )
                   
                 )
-                );
+                ),
+    );
             
   }
 }

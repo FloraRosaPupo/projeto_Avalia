@@ -1,4 +1,5 @@
 import 'package:avalia/screens/components/card_student_class.dart';
+import 'package:avalia/screens/details_exams_student_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:avalia/screens/components/card_exams_screens.dart';
 import 'package:avalia/screens/components/exams_correction_student.dart';
@@ -16,11 +17,9 @@ class StudentDetailScreens extends StatelessWidget {
         surfaceTintColor: Colors.white,
         elevation: 1,
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-          IconButton(icon: Icon(Icons.arrow_back), onPressed: (){
-            Navigator.pop(context);
-          },),
+          
           Container(
             height: 30,
                 padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
@@ -69,6 +68,7 @@ class StudentDetailScreens extends StatelessWidget {
               children: [
                 Expanded(
                   child: Card(
+                    color: Colors.white,
                     child:  Padding(
                     
                     padding: EdgeInsets.all(16),
@@ -96,6 +96,7 @@ class StudentDetailScreens extends StatelessWidget {
                 SizedBox(width: 16),
                 Expanded(
                   child: Card(
+                    color: Colors.white,
                     child: Padding(
                     
                     padding: EdgeInsets.all(16),
@@ -144,6 +145,7 @@ class StudentDetailScreens extends StatelessWidget {
                               children: [
                                 SizedBox(height: 16),
                                 Card(
+                                  color: Colors.white,
                                   child: Padding(
                                     padding: EdgeInsets.all(16),
                                     child: Column(
@@ -173,6 +175,7 @@ class StudentDetailScreens extends StatelessWidget {
                                 ),
                                 SizedBox(height: 16),
                                 Card(
+                                  color: Colors.white,
                                   child: Padding(
                                     padding: EdgeInsets.all(16),
                                     child: Column(
@@ -196,6 +199,7 @@ class StudentDetailScreens extends StatelessWidget {
                                 ),
                                 SizedBox(height: 16),
                                 Card(
+                                  color: Colors.white,
                                   child: Padding(
                                     padding: EdgeInsets.all(16),
                                     child: Column(
@@ -238,13 +242,22 @@ class StudentDetailScreens extends StatelessWidget {
                                     },
                                   );
                                 },
-                                child: CardExamsScreens(
+                                child: InkWell(
+                                  onTap: () {
+                                    
+                                    Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => DetailsExamsStudentScreens()),
+            );
+                                  },
+                                  child: CardExamsScreens(
                                   title: 'Prova $index',
                                   status: 'Concluido',
                                   colorBorder: Colors.green,
                                   colorBackground: const Color.fromARGB(19, 121, 197, 121),
                                   icon: Icons.check_circle_outline,
                                 ),
+                                )
                               );
                             },
                           ),
