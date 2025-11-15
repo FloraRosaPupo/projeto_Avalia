@@ -1,3 +1,5 @@
+import 'package:avalia/screens/dashboard_screens.dart';
+import 'package:avalia/screens/register_screens.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -123,7 +125,10 @@ class LoginScreen extends StatelessWidget {
               ),
               
               onPressed: () {
-                Navigator.pushNamed(context, '/dashboard_screens');
+                Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => DashboardScreen()),
+            );
               },
               child: Text('Entrar', style: TextStyle(color: Colors.white),),
             ),
@@ -134,7 +139,10 @@ class LoginScreen extends StatelessWidget {
             Center(
               child: InkWell(
               onTap: () {
-                //Go to registration screen.
+                Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => RegisterScreen()),
+            );
               },
               child: Text('Criar conta' ),
             ),

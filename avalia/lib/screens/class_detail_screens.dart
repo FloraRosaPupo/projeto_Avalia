@@ -3,9 +3,9 @@ import 'package:avalia/screens/details_exams_student_screens.dart';
 import 'package:avalia/screens/student_detail_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:avalia/screens/components/card_student_class.dart';
-
+import 'package:avalia/screens/components/cretead_student_modal.dart';
 class ClassDetailScreens extends StatelessWidget {
-  
+  const ClassDetailScreens({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +47,13 @@ class ClassDetailScreens extends StatelessWidget {
             ), 
             SizedBox(height: 16,),
             Row(children: [
-              Expanded(child: ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: Colors.purple), onPressed: (){}, icon: Icon(Icons.person_add, color: Colors.white,), label: Text('Adicionar Aluno',style: TextStyle(color: Colors.white),)),),
+              Expanded(child: ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: Colors.purple), onPressed: (){
+                showDialog(
+                  context: context,
+                  builder: (context) =>  ModalCreatedStudent(),
+                  
+                );
+              }, icon: Icon(Icons.person_add, color: Colors.white,), label: Text('Adicionar Aluno',style: TextStyle(color: Colors.white),)),),
               SizedBox(width: 16,),
               Expanded(child: ElevatedButton.icon(onPressed: (){}, icon: Icon(Icons.import_export), label: Text('Importar Alunos')),),
             ],), 
