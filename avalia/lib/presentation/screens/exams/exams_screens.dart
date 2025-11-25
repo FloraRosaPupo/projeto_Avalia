@@ -1,6 +1,4 @@
-import 'package:avalia/screens/components/card_class_screens.dart';
-import 'package:avalia/screens/components/card_exams_screens.dart';
-import 'package:avalia/screens/components/created_class_modal.dart';
+import 'package:avalia/screens/exams/card_exams_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:avalia/screens/components/created_exams_modal.dart';
 

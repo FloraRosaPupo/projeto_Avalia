@@ -1,4 +1,4 @@
-import 'package:avalia/screens/dashboard_screens.dart';
+import 'package:avalia/screens/dashboard/dashboard_screens.dart';
 import 'package:avalia/screens/register_screens.dart';
 import 'package:flutter/material.dart';
 

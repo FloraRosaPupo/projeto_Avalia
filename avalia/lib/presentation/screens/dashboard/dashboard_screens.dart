@@ -1,9 +1,8 @@
-import 'package:avalia/screens/class_screens.dart';
-import 'package:avalia/screens/components/card_dashbord_screens.dart';
-import 'package:avalia/screens/components/exams_correction_student.dart';
-import 'package:avalia/screens/exams_screens.dart';
+import 'package:avalia/screens/class/class_screens.dart';
+import 'package:avalia/screens/dashboard/card_dashbord_screens.dart';
+import 'package:avalia/screens/exams/exams_screens.dart';
 import 'package:flutter/material.dart';
-import 'package:avalia/screens/components/history_screens.dart';
+import 'package:avalia/screens/dashboard/history_screens.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({Key? key}) : super(key: key);
