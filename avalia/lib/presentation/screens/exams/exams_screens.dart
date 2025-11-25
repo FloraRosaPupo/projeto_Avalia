@@ -1,6 +1,6 @@
-import 'package:avalia/screens/exams/card_exams_screens.dart';
+import 'package:avalia/presentation/screens/exams/exams_card_screens.dart';
 import 'package:flutter/material.dart';
-import 'package:avalia/screens/components/created_exams_modal.dart';
+import 'package:avalia/presentation/screens/exams/exams_created_modal.dart';
 
 class ExamsScreens extends StatelessWidget {
   const ExamsScreens({Key? key}) : super(key: key);
