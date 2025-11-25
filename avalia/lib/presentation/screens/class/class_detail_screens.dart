@@ -1,8 +1,8 @@
-import 'package:avalia/screens/components/card_exams_screens.dart';
-import 'package:avalia/screens/student_detail_screens.dart';
+import 'package:avalia/presentation/screens/exams/exams_card_screens.dart';
+import 'package:avalia/presentation/screens/student/student_detail_screens.dart';
 import 'package:flutter/material.dart';
-import 'package:avalia/screens/components/card_student_class.dart';
-import 'package:avalia/screens/components/cretead_student_modal.dart';
+import 'package:avalia/presentation/screens/student/student_card_class.dart';
+import 'package:avalia/presentation/screens/student/student_cretead_modal.dart';
 class ClassDetailScreens extends StatelessWidget {
   const ClassDetailScreens({Key? key}) : super(key: key);
 

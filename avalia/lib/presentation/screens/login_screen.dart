@@ -1,5 +1,5 @@
-import 'package:avalia/screens/dashboard/dashboard_screens.dart';
-import 'package:avalia/screens/register_screens.dart';
+import 'package:avalia/presentation/screens/dashboard/dashboard_screens.dart';
+import 'package:avalia/presentation/screens/register_screens.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatelessWidget {

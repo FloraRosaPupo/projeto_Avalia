@@ -1,7 +1,7 @@
-import 'package:avalia/screens/details_exams_student_screens.dart';
+import 'package:avalia/presentation/screens/student/student_details_exams_screens.dart';
 import 'package:flutter/material.dart';
-import 'package:avalia/screens/components/card_exams_screens.dart';
-import 'package:avalia/screens/components/exams_correction_student.dart';
+import 'package:avalia/presentation/screens/exams/exams_card_screens.dart';
+import 'package:avalia/presentation/screens/exams/exams_correction_student.dart';
 
 class StudentDetailScreens extends StatelessWidget {
   const StudentDetailScreens({Key? key}) : super(key: key);

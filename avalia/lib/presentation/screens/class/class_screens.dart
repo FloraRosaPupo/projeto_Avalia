@@ -1,6 +1,6 @@
-import 'package:avalia/screens/class_detail_screens.dart';
-import 'package:avalia/screens/components/card_class_screens.dart';
-import 'package:avalia/screens/components/created_class_modal.dart';
+import 'package:avalia/presentation/screens/class/class_detail_screens.dart';
+import 'package:avalia/presentation/screens/class/class_card_screens.dart';
+import 'package:avalia/presentation/screens/class/class_created_modal.dart';
 import 'package:flutter/material.dart';
 class ClassScreens extends StatelessWidget {
   const ClassScreens({Key? key}) : super(key: key);

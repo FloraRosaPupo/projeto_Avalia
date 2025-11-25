@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class ModalCreatedClass extends StatefulWidget {
   const ModalCreatedClass({super.key});
