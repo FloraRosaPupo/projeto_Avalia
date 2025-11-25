@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 final ThemeData appTheme = ThemeData(
   colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+  scaffoldBackgroundColor: Colors.white,
   fontFamily: 'Poppins',
   useMaterial3: true,
   textTheme: const TextTheme(

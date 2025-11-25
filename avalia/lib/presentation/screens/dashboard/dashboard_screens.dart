@@ -1,8 +1,10 @@
-import 'package:avalia/screens/class/class_screens.dart';
-import 'package:avalia/screens/dashboard/card_dashbord_screens.dart';
-import 'package:avalia/screens/exams/exams_screens.dart';
+import 'package:avalia/presentation/screens/class/class_screens.dart';
+import 'package:avalia/presentation/screens/dashboard/dashboard_card_value_screens.dart';
+import 'package:avalia/presentation/screens/exams/exams_screens.dart';
 import 'package:flutter/material.dart';
-import 'package:avalia/screens/dashboard/history_screens.dart';
+import 'package:avalia/presentation/screens/dashboard/dashboard_card_history_screens.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:avalia/presentation/screens/login_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -16,6 +18,13 @@ class DashboardScreen extends StatelessWidget {
         shadowColor: Colors.white,
         surfaceTintColor: Colors.white,
         elevation: 1,
+        leading: IconButton(icon: Icon(Icons.logout), onPressed: (){
+          Supabase.instance.client.auth.signOut();
+          Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
+                  );
+        },),
         title: Expanded(child: Row(
             children: [
               Container(
