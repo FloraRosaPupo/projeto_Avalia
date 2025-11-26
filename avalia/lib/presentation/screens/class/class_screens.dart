@@ -110,7 +110,12 @@ class _ClassScreensState extends State<ClassScreens> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ClassDetailScreens()),
+                  MaterialPageRoute(
+                    builder: (context) => ClassDetailScreens(
+                      classId: turma.id,
+                      className: turma.nome,
+                    ),
+                  ),
                 );
               },
               child: TestScreens(
