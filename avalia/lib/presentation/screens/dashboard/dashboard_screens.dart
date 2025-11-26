@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:avalia/presentation/screens/class/class_screens.dart';
 import 'package:avalia/presentation/screens/dashboard/dashboard_card_value_screens.dart';
 import 'package:avalia/presentation/screens/exams/exams_screens.dart';
@@ -118,7 +116,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
           }
 
           // ESTADO INICIAL / OUTROS
-          return const Scaffold(body: Center(child: Text('Carregando...')));
+          return ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const DashboardScreen(),
+                ),
+              );
+            },
+            child: const Text('Carregando...'),
+          );
         },
       ),
     );
@@ -126,88 +134,111 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildBodyWithData(BuildContext context, DashboardResponse? data) {
     final recent = data?.recentActivities ?? <Activity>[];
+    final cubit = context.read<DashboardCubit>();
 
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // cards superiores (exemplo simples)
-            Row(
-              children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ClassScreens(),
+    return RefreshIndicator(
+      onRefresh: () async {
+        if (userId != null) {
+          await cubit.getRecentActivities(
+            userId: userId!,
+            limit: 10,
+            isRefresh: true,
+          );
+        }
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // cards superiores (exemplo simples)
+              Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ClassScreens(),
+                          ),
+                        );
+                      },
+                      child: CardDashbordScreen(
+                        icon: Icons.group_outlined,
+                        colorBackground: const Color.fromARGB(
+                          97,
+                          255,
+                          253,
+                          124,
                         ),
-                      );
-                    },
-                    child: CardDashbordScreen(
-                      icon: Icons.group_outlined,
-                      colorBackground: const Color.fromARGB(97, 255, 253, 124),
-                      colorIcon: const Color.fromARGB(255, 190, 187, 0),
-                      title: 'Minhas Turmas',
-                      number: data?.turmaCount.toString() ?? '—',
-                      subtitle: 'Turmas',
+                        colorIcon: const Color.fromARGB(255, 190, 187, 0),
+                        title: 'Minhas Turmas',
+                        number: data?.turmaCount.toString() ?? '—',
+                        subtitle: 'Turmas',
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8.0),
-                Expanded(
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ExamsScreens(),
-                        ),
-                      );
-                    },
-                    child: CardDashbordScreen(
-                      icon: Icons.article_outlined,
-                      colorBackground: const Color.fromARGB(82, 52, 175, 206),
-                      colorIcon: const Color.fromARGB(255, 62, 87, 94),
-                      title: 'Provas Recentes',
-                      number: data?.provaCount.toString() ?? '—',
-                      subtitle: 'Provas',
+                  const SizedBox(width: 8.0),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ExamsScreens(),
+                          ),
+                        );
+                      },
+                      child: CardDashbordScreen(
+                        icon: Icons.article_outlined,
+                        colorBackground: const Color.fromARGB(82, 52, 175, 206),
+                        colorIcon: const Color.fromARGB(255, 62, 87, 94),
+                        title: 'Provas Recentes',
+                        number: data?.provaCount.toString() ?? '—',
+                        subtitle: 'Provas',
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16.0),
-            const Text(
-              'Atividades Recentes',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8.0),
-            recent.isEmpty
-                ? const Padding(
-                    padding: EdgeInsets.all(24.0),
-                    child: Text('Nenhuma atividade encontrada.'),
-                  )
-                : ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: recent.length,
-                    itemBuilder: (context, index) {
-                      final act = recent[index];
-                      final style = getActivityStyle(act.action, act.resource);
-                      return HistoryScreens(
-                        icon: style.icon,
-                        colorBackground: style.color.withOpacity(0.2),
-                        colorIcon: style.color,
-                        title: act.title ?? 'Sem título',
-                        subtitle: act.resource,
-                        datetime: act.createdAt,
-                      );
-                    },
-                  ),
-          ],
+                ],
+              ),
+              const SizedBox(height: 16.0),
+              const Text(
+                'Atividades Recentes',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8.0),
+              recent.isEmpty
+                  ? const Padding(
+                      padding: EdgeInsets.all(24.0),
+                      child: Text('Nenhuma atividade encontrada.'),
+                    )
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: recent.length,
+                      itemBuilder: (context, index) {
+                        final act = recent[index];
+                        final style = getActivityStyle(
+                          act.action,
+                          act.resource,
+                        );
+                        return HistoryScreens(
+                          icon: style.icon,
+                          colorBackground: style.color.withOpacity(0.2),
+                          colorIcon: style.color,
+                          title: act.title ?? 'Sem título',
+                          subtitle: act.resource,
+                          datetime: act.createdAt == null
+                              ? DateTime.now()
+                              : act.createdAt!,
+                        );
+                      },
+                    ),
+            ],
+          ),
         ),
       ),
     );

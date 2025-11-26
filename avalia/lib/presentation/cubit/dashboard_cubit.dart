@@ -17,8 +17,11 @@ class DashboardCubit extends Cubit<BaseState> {
   Future<void> getRecentActivities({
     required String userId,
     int limit = 10,
+    bool isRefresh = false,
   }) async {
-    emit(LoadingState());
+    if (!isRefresh) {
+      emit(LoadingState());
+    }
     try {
       final response = await Supabase.instance.client.rpc(
         'get_recent_activities_json',

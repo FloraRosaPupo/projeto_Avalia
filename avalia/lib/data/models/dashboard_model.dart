@@ -37,37 +37,39 @@ class DashboardResponse {
 
 /// Individual activity entry.
 class Activity {
-  final String id;
+  final String? id;
   final Meta? meta;
-  final String type;
+  final String? type;
   final String? title;
   final String action;
   final String resource;
-  final DateTime createdAt;
+  final DateTime? createdAt;
   final String? description;
 
   Activity({
-    required this.id,
+    this.id,
     this.meta,
-    required this.type,
+    this.type,
     this.title,
     this.action = '',
     this.resource = '',
-    required this.createdAt,
+    this.createdAt,
     this.description,
   });
 
   factory Activity.fromJson(Map<String, dynamic> json) {
     return Activity(
-      id: json['id'] as String,
+      id: json['id'] as String?,
       meta: json['meta'] != null
           ? Meta.fromJson(json['meta'] as Map<String, dynamic>)
           : null,
-      type: json['type'] as String,
+      type: json['type'] as String?,
       title: json['title'] as String?,
       action: json['action'] as String? ?? '',
       resource: json['resource'] as String? ?? '',
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : null,
       description: json['description'] as String?,
     );
   }
@@ -79,30 +81,32 @@ class Activity {
     'title': title,
     'action': action,
     'resource': resource,
-    'created_at': createdAt.toUtc().toIso8601String(),
+    'created_at': createdAt?.toUtc().toIso8601String(),
     'description': description,
   };
 }
 
 /// The `meta` sub‑object inside an activity.
 class Meta {
-  final String id;
-  final String nome;
-  final DateTime criadoEm;
+  final String? id;
+  final String? nome;
+  final DateTime? criadoEm;
 
-  Meta({required this.id, required this.nome, required this.criadoEm});
+  Meta({this.id, this.nome, this.criadoEm});
 
   factory Meta.fromJson(Map<String, dynamic> json) {
     return Meta(
-      id: json['id'] as String,
-      nome: json['nome'] as String,
-      criadoEm: DateTime.parse(json['criado_em'] as String),
+      id: json['id'] as String?,
+      nome: json['nome'] as String?,
+      criadoEm: json['criado_em'] != null
+          ? DateTime.parse(json['criado_em'] as String)
+          : null,
     );
   }
 
   Map<String, dynamic> toJson() => {
     'id': id,
     'nome': nome,
-    'criado_em': criadoEm.toUtc().toIso8601String(),
+    'criado_em': criadoEm?.toUtc().toIso8601String(),
   };
 }
