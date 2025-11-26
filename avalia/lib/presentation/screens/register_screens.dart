@@ -20,6 +20,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String email = '';
   String password = '';
 
+  int qtdControllerSenha = 0;
+
   final FocusNode nameFocus = FocusNode();
   final FocusNode emailFocus = FocusNode();
   final FocusNode passwordFocus = FocusNode();
@@ -45,7 +47,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     MaterialPageRoute(builder: (context) => LoginScreen()),
                   );
         }else if (state is ErrorState) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao realizar o Cadastro, tente novamente!'),
+              backgroundColor: Colors.redAccent,
+              duration: Duration(seconds: 3),
+            ),
+          );
           loadingController = false;
         }else if (state is LoadingState) {
           loadingController = true;
@@ -185,6 +193,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               keyboardType: TextInputType.visiblePassword,
               onChanged: (value) {
                 password = value.trim();
+                qtdControllerSenha = value.length;
               },
             ),
            
@@ -205,15 +214,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
 
-                onPressed: isLoading
-                          ? null
-                          : () {
-                              context.read<AuthCubit>().register(
-                                name: nome,
-                                email: email,
-                                password: password,
-                              );
-                            },
+                onPressed: isLoading || nome.isEmpty || email.isEmpty || password.isEmpty
+                    ? (){}
+                    : qtdControllerSenha < 6
+                        ? () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('A senha deve ter no mínimo 6 caracteres')),
+                            );
+                          }
+                        : () {
+                            context.read<AuthCubit>().register(
+                              name: nome,
+                              email: email,
+                              password: password,
+                            );
+                          },
                 child: Text(isLoading?'Registrando...':'Registrar', style: TextStyle(color: Colors.white)),
               ),
             );

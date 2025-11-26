@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     MaterialPageRoute(builder: (context) => DashboardScreen()),
                   );
         }else if (state is ErrorState) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Senha ou email incorreto, valide os campos e tente novamente')));
           loadingController = false;
         }else if (state is LoadingState) {
           //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Carregando...')));
@@ -172,9 +172,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     borderRadius: BorderRadius.circular(100.0),
                   ),
                 ),
-
-                onPressed: isLoading
-                          ? null
+                onPressed: isLoading || email.isEmpty || password.isEmpty
+                          ? (){}
                           : () {
                               context.read<AuthCubit>().login(
                                 email: email,
