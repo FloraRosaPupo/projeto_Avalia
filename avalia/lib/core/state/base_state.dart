@@ -1,6 +1,7 @@
+// lib/core/state/base_state.dart
 import 'package:equatable/equatable.dart';
 
-/// Classe base para gerenciamento de estados usando BLoC/Cubit.
+/// Base class for all Cubit states.
 abstract class BaseState extends Equatable {
   const BaseState();
 
@@ -8,13 +9,14 @@ abstract class BaseState extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Estado inicial antes de qualquer ação.
+/// Initial state when the Cubit is first created.
 class InitialState extends BaseState {}
 
-/// Estado de carregamento (ex: buscando dados na API).
+/// State emitted while a request is in progress.
 class LoadingState extends BaseState {}
 
-/// Estado de sucesso contendo os dados retornados.
+/// State emitted when a request succeeds.
+/// The generic type `T` holds the payload (e.g. a model object or raw JSON).
 class SuccessState<T> extends BaseState {
   final T data;
 
@@ -24,7 +26,7 @@ class SuccessState<T> extends BaseState {
   List<Object?> get props => [data];
 }
 
-/// Estado de erro contendo a mensagem de falha.
+/// State emitted when a request fails.
 class ErrorState extends BaseState {
   final String message;
 
