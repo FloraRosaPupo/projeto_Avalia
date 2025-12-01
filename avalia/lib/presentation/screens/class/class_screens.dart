@@ -111,10 +111,7 @@ class _ClassScreensState extends State<ClassScreens> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ClassDetailScreens(
-                      classId: turma.id,
-                      className: turma.nome,
-                    ),
+                    builder: (context) => ClassDetailScreens(classId: turma.id),
                   ),
                 );
               },

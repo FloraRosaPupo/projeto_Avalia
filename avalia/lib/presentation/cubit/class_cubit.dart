@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/state/base_state.dart';
 import '../../data/models/class_model.dart';
+import '../../data/models/class_detail_model.dart';
 
 /// Cubit responsável por gerenciar as turmas do usuário autenticado.
 class ClassCubit extends Cubit<BaseState> {
@@ -46,6 +47,45 @@ class ClassCubit extends Cubit<BaseState> {
       await getClassesByUserId(userId: userId);
     } catch (e) {
       print('Erro ao criar turma: $e');
+      emit(ErrorState(e.toString()));
+    }
+  }
+
+  /// Atualiza uma turma existente.
+  Future<void> updateClass({
+    required int classId,
+    required String userId,
+    required String nome,
+    String? descricao,
+  }) async {
+    emit(LoadingState());
+    try {
+      await Supabase.instance.client
+          .from('turmas')
+          .update({'nome': nome, 'descricao': descricao})
+          .eq('id', classId);
+
+      // Recarrega a lista de turmas após atualizar
+      await getClassesByUserId(userId: userId);
+    } catch (e) {
+      print('Erro ao atualizar turma: $e');
+      emit(ErrorState(e.toString()));
+    }
+  }
+
+  /// Busca os detalhes de uma turma (alunos, provas, etc.) via RPC.
+  Future<void> getClassDetails({required int classId}) async {
+    emit(LoadingState());
+    try {
+      final response = await Supabase.instance.client.rpc(
+        'get_turma_com_alunos',
+        params: {'p_turma_id': classId},
+      );
+
+      final classDetail = ClassDetailModel.fromJson(response);
+      emit(SuccessState<ClassDetailModel>(classDetail));
+    } catch (e) {
+      print('Erro ao buscar detalhes da turma: $e');
       emit(ErrorState(e.toString()));
     }
   }

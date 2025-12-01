@@ -5,7 +5,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ModalCreatedClass extends StatefulWidget {
-  const ModalCreatedClass({super.key});
+  const ModalCreatedClass({
+    super.key,
+    this.classId,
+    this.className,
+    this.subject,
+  });
+
+  final int? classId;
+  final String? className;
+  final String? subject;
 
   @override
   State<ModalCreatedClass> createState() => _ModalCreatedClassState();
@@ -18,6 +27,20 @@ class _ModalCreatedClassState extends State<ModalCreatedClass> {
   Color picked = Colors.blue;
   String descricao = "";
   String nome = "";
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.className != null) {
+      _nameController.text = widget.className!;
+      nome = widget.className!;
+    }
+    if (widget.subject != null) {
+      _subjectController.text = widget.subject!;
+      descricao = widget.subject!;
+    }
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -54,12 +77,20 @@ class _ModalCreatedClassState extends State<ModalCreatedClass> {
           if (state is SuccessState) {
             Navigator.of(context).pop(true);
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Turma criada com sucesso!')),
+              SnackBar(
+                content: Text(
+                  'Turma ${widget.classId == null ? 'criada' : 'editada'} com sucesso!',
+                ),
+              ),
             );
             //Navigator.of(context).pop();
           } else if (state is ErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Erro ao criar turma: ${state.message}')),
+              SnackBar(
+                content: Text(
+                  'Erro ao ${widget.classId == null ? 'criar' : 'editar'} turma: ${state.message}',
+                ),
+              ),
             );
           }
         },
@@ -82,8 +113,8 @@ class _ModalCreatedClassState extends State<ModalCreatedClass> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    'Criar Turma',
+                  Text(
+                    widget.classId == null ? 'Criar Turma' : 'Editar Turma',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
@@ -95,7 +126,7 @@ class _ModalCreatedClassState extends State<ModalCreatedClass> {
                       }
                       return null;
                     },
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Nome da Turma',
                       hintStyle: TextStyle(
                         color: Color.fromARGB(99, 158, 158, 158),
@@ -232,16 +263,30 @@ class _ModalCreatedClassState extends State<ModalCreatedClass> {
                             isLoading || nome.isEmpty || descricao.isEmpty
                             ? () {}
                             : () {
-                                context.read<ClassCubit>().createClass(
-                                  userId: Supabase
-                                      .instance
-                                      .client
-                                      .auth
-                                      .currentUser!
-                                      .id,
-                                  nome: nome,
-                                  descricao: descricao,
-                                );
+                                if (widget.classId == null) {
+                                  context.read<ClassCubit>().createClass(
+                                    userId: Supabase
+                                        .instance
+                                        .client
+                                        .auth
+                                        .currentUser!
+                                        .id,
+                                    nome: nome,
+                                    descricao: descricao,
+                                  );
+                                } else {
+                                  context.read<ClassCubit>().updateClass(
+                                    userId: Supabase
+                                        .instance
+                                        .client
+                                        .auth
+                                        .currentUser!
+                                        .id,
+                                    classId: widget.classId!,
+                                    nome: nome,
+                                    descricao: descricao,
+                                  );
+                                }
                               },
                         child: isLoading
                             ? const SizedBox(
@@ -252,8 +297,8 @@ class _ModalCreatedClassState extends State<ModalCreatedClass> {
                                   strokeWidth: 2,
                                 ),
                               )
-                            : const Text(
-                                'Salvar',
+                            : Text(
+                                widget.classId == null ? 'Salvar' : 'Editar',
                                 style: TextStyle(color: Colors.white),
                               ),
                       );
