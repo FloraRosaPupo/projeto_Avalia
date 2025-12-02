@@ -344,7 +344,17 @@ class _StudentDetailScreensState extends State<StudentDetailScreens> {
                                                   context,
                                                   MaterialPageRoute(
                                                     builder: (context) =>
-                                                        const DetailsExamsStudentScreens(),
+                                                        DetailsExamsStudentScreens(
+                                                          provaId:
+                                                              'prova_$index', // TODO: usar ID real da prova
+                                                          alunoId: widget
+                                                              .studentId
+                                                              .toString(),
+                                                          provaNome:
+                                                              'Prova $index',
+                                                          provaData:
+                                                              '12/05/2023',
+                                                        ),
                                                   ),
                                                 );
                                               },
