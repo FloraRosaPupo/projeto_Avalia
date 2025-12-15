@@ -6,7 +6,7 @@ class SubmissionModel {
   final SubmissionStatus status;
   final double? nota;
   final int? acertos;
-  final int? erros;
+  final int? totalQuestoes;
   final List<QuestionDetail>? detalhamento;
   final List<SubmissionIssue>? issues;
   final double? confidence;
@@ -22,7 +22,7 @@ class SubmissionModel {
     this.status = SubmissionStatus.pending,
     this.nota,
     this.acertos,
-    this.erros,
+    this.totalQuestoes,
     this.detalhamento,
     this.issues,
     this.confidence,
@@ -42,7 +42,7 @@ class SubmissionModel {
       ),
       nota: json['nota'] != null ? (json['nota'] as num).toDouble() : null,
       acertos: json['acertos'] as int?,
-      erros: json['erros'] as int?,
+      totalQuestoes: json['total_questoes'] as int?,
       detalhamento: json['detalhamento'] != null
           ? (json['detalhamento'] as List)
                 .map((e) => QuestionDetail.fromJson(e as Map<String, dynamic>))
@@ -75,7 +75,7 @@ class SubmissionModel {
       'status': status.value,
       'nota': nota,
       'acertos': acertos,
-      'erros': erros,
+      'total_questoes': totalQuestoes,
       'detalhamento': detalhamento?.map((e) => e.toJson()).toList(),
       'issues': issues?.map((e) => e.toJson()).toList(),
       'confidence': confidence,
@@ -93,7 +93,7 @@ class SubmissionModel {
     SubmissionStatus? status,
     double? nota,
     int? acertos,
-    int? erros,
+    int? totalQuestoes,
     List<QuestionDetail>? detalhamento,
     List<SubmissionIssue>? issues,
     double? confidence,
@@ -109,7 +109,7 @@ class SubmissionModel {
       status: status ?? this.status,
       nota: nota ?? this.nota,
       acertos: acertos ?? this.acertos,
-      erros: erros ?? this.erros,
+      totalQuestoes: totalQuestoes ?? this.totalQuestoes,
       detalhamento: detalhamento ?? this.detalhamento,
       issues: issues ?? this.issues,
       confidence: confidence ?? this.confidence,

@@ -14,6 +14,7 @@ class SubmissionCubit extends Cubit<BaseState> {
     try {
       emit(LoadingState());
 
+      print('Fetching submission for provaId: $provaId, alunoId: $alunoId');
       final response = await _supabase
           .from('submissoes')
           .select()
@@ -21,15 +22,25 @@ class SubmissionCubit extends Cubit<BaseState> {
           .eq('aluno_id', alunoId)
           .maybeSingle();
 
+      print('Submission response: $response');
+
       if (response == null) {
+        print('No submission found.');
         emit(SuccessState<SubmissionModel?>(null));
       } else {
         final submission = SubmissionModel.fromJson(response);
+        print('Submission parsed successfully: ${submission.id}');
         emit(SuccessState<SubmissionModel>(submission));
       }
-    } catch (e) {
+    } catch (e, s) {
+      print('Error fetching submission: $e');
+      print('Stack trace: $s');
       emit(ErrorState('Erro ao buscar submissão: $e'));
     }
+  }
+
+  void updateSubmission(SubmissionModel submission) {
+    emit(SuccessState<SubmissionModel>(submission));
   }
 
   /// Validação pré-upload (cliente)
@@ -54,9 +65,6 @@ class SubmissionCubit extends Cubit<BaseState> {
           error: 'Formato inválido. Use JPG ou PNG',
         );
       }
-
-      // TODO: Adicionar verificação de resolução mínima se necessário
-      // Isso requer package adicional como image ou flutter_image_compress
 
       return ValidationResult(isValid: true);
     } catch (e) {
@@ -95,7 +103,7 @@ class SubmissionCubit extends Cubit<BaseState> {
 
       emit(SubmissionUploadingState(25));
 
-      final uploadPath = await _supabase.storage
+      await _supabase.storage
           .from('exam-submissions')
           .upload(
             fileName,
@@ -134,9 +142,6 @@ class SubmissionCubit extends Cubit<BaseState> {
 
       // 5. Transição para estado de processamento
       emit(SubmissionProcessingState('analysis', submission));
-
-      // 6. Aqui o webhook/n8n será acionado automaticamente
-      // via trigger do Supabase ou chamada explícita
     } catch (e) {
       if (e is StorageException) {
         emit(
@@ -242,6 +247,108 @@ class SubmissionCubit extends Cubit<BaseState> {
         break;
       default:
         emit(SuccessState<SubmissionModel>(submission));
+    }
+  }
+
+  /// Submeter e corrigir automaticamente com IA via Edge Function
+  Future<void> submitAndAutoCorrect({
+    required String provaId,
+    required String alunoId,
+    required File imageFile,
+    int attemptNumber = 1,
+  }) async {
+    try {
+      emit(SubmissionUploadingState(0));
+
+      // 1. Validação pré-upload
+      final validation = await validateImage(imageFile);
+      if (!validation.isValid) {
+        emit(
+          SubmissionErrorState(
+            validation.error ?? 'Validação falhou',
+            'VALIDATION_ERROR',
+          ),
+        );
+        return;
+      }
+
+      // 2. Upload da imagem
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final fileName = '$provaId/$alunoId/$timestamp.jpg';
+      emit(SubmissionUploadingState(20));
+
+      await _supabase.storage
+          .from('exam-submissions')
+          .upload(
+            fileName,
+            imageFile,
+            fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+          );
+      emit(SubmissionUploadingState(50));
+
+      final imageUrl = _supabase.storage
+          .from('exam-submissions')
+          .getPublicUrl(fileName);
+      emit(SubmissionUploadingState(80));
+
+      // 3. Buscar metadados da prova (Gabarito)
+      final examData = await _supabase
+          .from('provas')
+          .select('url_prova')
+          .eq('id', provaId)
+          .single();
+
+      final gabaritoUrl = examData['url_prova'] as String?;
+
+      emit(SubmissionUploadingState(100));
+
+      // Criar modelo temporário para UI
+      var submission = SubmissionModel(
+        provaId: provaId,
+        alunoId: alunoId,
+        imageUrl: imageUrl,
+        status: SubmissionStatus.processingAnalysis,
+        uploadedAt: DateTime.now(),
+        attemptNumber: attemptNumber,
+      );
+
+      // 4. Chamar Edge Function
+      emit(SubmissionProcessingState('analysis', submission));
+
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        throw Exception('Usuário não autenticado');
+      }
+
+      final functionResponse = await _supabase.functions.invoke(
+        'quick-api',
+        body: {
+          'provaId': provaId,
+          'alunoId': alunoId,
+          'image_url': imageUrl,
+          'gabarito_url': gabaritoUrl,
+          'userId': userId,
+        },
+      );
+
+      if (functionResponse.status != 200) {
+        throw Exception(
+          'Erro na Edge Function: ${functionResponse.status} - ${functionResponse.data}',
+        );
+      }
+
+      final responseData = functionResponse.data;
+      if (responseData['error'] != null) {
+        throw Exception(responseData['error']);
+      }
+
+      // 5. Processar resultado retornado pela função
+      // A função retorna o objeto de submissão atualizado
+      final finalSubmission = SubmissionModel.fromJson(responseData);
+
+      emit(SubmissionCompletedState(finalSubmission));
+    } catch (e) {
+      emit(SubmissionErrorState('Erro ao processar: $e', 'PROCESSING_ERROR'));
     }
   }
 

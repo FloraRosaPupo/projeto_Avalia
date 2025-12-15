@@ -1,3 +1,4 @@
+// submission_upload_modal.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,14 +29,16 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SubmissionCubit(),
+      create: (_) => SubmissionCubit(),
       child: BlocConsumer<SubmissionCubit, dynamic>(
         listener: (context, state) {
           if (state is SubmissionCompletedState) {
             Navigator.pop(context, state.submission);
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('✅ Submissão concluída com sucesso!'),
+              SnackBar(
+                content: Text(
+                  '✅ Corrigido! Nota: ${state.submission.nota ?? 0}. Submetendo resultado...',
+                ),
                 backgroundColor: Colors.green,
               ),
             );
@@ -58,25 +61,26 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
           }
         },
         builder: (context, state) {
-          if (_selectedImage == null) {
-            return _buildImageSourceSelection(context);
-          } else if (state is SubmissionPreviewState ||
-              _selectedImage != null && state is! SubmissionUploadingState) {
-            return _buildImagePreview(context);
-          } else if (state is SubmissionUploadingState) {
+          if (state is SubmissionUploadingState) {
             return _buildUploadProgress(context, state.percent);
           } else if (state is SubmissionProcessingState) {
             return _buildProcessingView(context, state);
           } else if (state is SubmissionNeedsReviewState) {
             return _buildReviewNeededView(context, state);
+          } else if (_selectedImage == null) {
+            return _buildImageSourceSelection(context);
+          } else {
+            // Default to preview if image is selected and not in other active states
+            return _buildImagePreview(context);
           }
-
-          return _buildImageSourceSelection(context);
         },
       ),
     );
   }
 
+  // ---------------------------------------------------------------------
+  // UI helpers
+  // ---------------------------------------------------------------------
   Widget _buildImageSourceSelection(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -90,15 +94,12 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
+            children: const [
+              Text(
                 'Enviar Resposta',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.pop(context),
-              ),
+              // Close button handled by parent modal
             ],
           ),
           const SizedBox(height: 16),
@@ -194,15 +195,12 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
+            children: const [
+              Text(
                 'Preview da Imagem',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.pop(context),
-              ),
+              // Close button handled by parent modal
             ],
           ),
           const SizedBox(height: 16),
@@ -216,9 +214,7 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    setState(() {
-                      _selectedImage = null;
-                    });
+                    setState(() => _selectedImage = null);
                   },
                   icon: const Icon(Icons.refresh),
                   label: const Text('Trocar'),
@@ -265,7 +261,7 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text(
-            '1/4 — Enviando imagem...',
+            'Fazendo upload...',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
@@ -297,30 +293,19 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
   ) {
     String stepText;
     String stepDescription;
-    int stepNumber;
-
     switch (state.step) {
       case 'analysis':
-        stepNumber = 2;
-        stepText = 'Processando imagem';
-        stepDescription = 'Extraindo marcações do gabarito...';
-        break;
-      case 'ai_validation':
-        stepNumber = 3;
-        stepText = 'Validação por IA';
-        stepDescription = 'Verificando qualidade e inconsistências...';
+        stepText = 'IA analisando suas respostas...';
+        stepDescription = 'Identificando questões e marcações...';
         break;
       case 'grading':
-        stepNumber = 4;
         stepText = 'Calculando nota';
-        stepDescription = 'Comparando com gabarito oficial...';
+        stepDescription = 'Enviando resultado para o servidor...';
         break;
       default:
-        stepNumber = 2;
         stepText = 'Processando';
         stepDescription = 'Aguarde...';
     }
-
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
@@ -330,17 +315,24 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            '$stepNumber/4 — $stepText',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            stepDescription,
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
+          const Text(
+            'Corrigindo com IA',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
           const CircularProgressIndicator(),
+          const SizedBox(height: 24),
+          Text(
+            stepText,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            stepDescription,
+            style: const TextStyle(fontSize: 14, color: Colors.grey),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 24),
         ],
       ),
@@ -359,179 +351,66 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: const [
-              Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 32),
-              SizedBox(width: 12),
-              Text(
-                'Problemas Detectados',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ],
+          const Text(
+            'Revisão Necessária',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          Container(
-            constraints: const BoxConstraints(maxHeight: 200),
-            child: ListView.separated(
-              shrinkWrap: true,
-              itemCount: state.issues.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
-              itemBuilder: (context, index) {
-                final issue = state.issues[index];
-                return _buildIssueCard(issue);
-              },
-            ),
+          // Show a generic message; you can customize based on state
+          const Text(
+            'A submissão precisa ser revisada.',
+            style: TextStyle(fontSize: 14),
           ),
           const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () {
-              setState(() {
-                _selectedImage = null;
-              });
-              context.read<SubmissionCubit>().resetToInitial();
-            },
-            icon: const Icon(Icons.refresh),
-            label: const Text('Reenviar Foto'),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () {
-              context.read<SubmissionCubit>().requestReprocessing(
-                state.submission.id!,
-              );
-            },
-            icon: const Icon(Icons.replay),
-            label: const Text('Solicitar Revisão Manual'),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
+          // If there are specific issues, display them
+          if (state.issues.isNotEmpty) ...[
+            ...state.issues.map(_buildIssueCard).toList(),
+            const SizedBox(height: 24),
+          ],
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Fechar'),
           ),
         ],
       ),
     );
   }
 
+  // Simple card for an issue; adjust layout as needed
   Widget _buildIssueCard(SubmissionIssue issue) {
-    Color severityColor;
-    IconData severityIcon;
-
-    switch (issue.severity) {
-      case 'critical':
-        severityColor = Colors.red;
-        severityIcon = Icons.error;
-        break;
-      case 'error':
-        severityColor = Colors.orange;
-        severityIcon = Icons.warning;
-        break;
-      default:
-        severityColor = Colors.yellow.shade700;
-        severityIcon = Icons.info;
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: severityColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: severityColor.withOpacity(0.3)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(severityIcon, color: severityColor, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  issue.type,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: severityColor,
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(issue.message, style: const TextStyle(fontSize: 14)),
-                if (issue.affectedQuestions != null &&
-                    issue.affectedQuestions!.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    'Questões: ${issue.affectedQuestions!.join(", ")}',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        leading: const Icon(Icons.error_outline, color: Colors.red),
+        title: Text(issue.type),
+        subtitle: Text(issue.message),
+        trailing: Text(issue.severity),
       ),
     );
   }
 
+  // ---------------------------------------------------------------------
+  // Interaction helpers
+  // ---------------------------------------------------------------------
   Future<void> _pickImage(BuildContext context, ImageSource source) async {
-    try {
-      final XFile? image = await _picker.pickImage(
-        source: source,
-        imageQuality: 85,
-        maxWidth: 1920,
-        maxHeight: 2560,
-      );
-
-      if (image != null) {
-        setState(() {
-          _selectedImage = File(image.path);
-        });
-
-        // Validar imagem
-        final cubit = context.read<SubmissionCubit>();
-        final validation = await cubit.validateImage(_selectedImage!);
-
-        if (!validation.isValid) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(validation.error ?? 'Imagem inválida'),
-              backgroundColor: Colors.red,
-            ),
-          );
-          setState(() {
-            _selectedImage = null;
-          });
-        }
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao selecionar imagem: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+    final XFile? picked = await _picker.pickImage(
+      source: source,
+      maxWidth: 1080,
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedImage = File(picked.path);
+      });
     }
   }
 
   void _uploadImage(BuildContext context) {
     if (_selectedImage == null) return;
-
-    final attemptNumber = widget.existingSubmission != null
+    final int attemptNumber = widget.existingSubmission != null
         ? (widget.existingSubmission!.attemptNumber + 1)
         : 1;
-
-    context.read<SubmissionCubit>().uploadSubmission(
+    context.read<SubmissionCubit>().submitAndAutoCorrect(
       provaId: widget.provaId,
       alunoId: widget.alunoId,
       imageFile: _selectedImage!,

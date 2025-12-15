@@ -94,47 +94,87 @@ class _DetailsExamsStudentScreensState
   }
 
   Widget _buildExamInfoCard(SubmissionModel? submission) {
-    return Card(
-      color: Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.provaNome ?? 'Nome da Prova',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Data da Prova: ${widget.provaData ?? "12/05/2023"}',
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 8),
-            _buildStatusBadge(submission),
-            if (submission?.status == SubmissionStatus.graded) ...[
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _statBox(
-                      title: 'Nota',
-                      value:
-                          '${submission!.acertos}/${submission.acertos! + submission.erros!}',
-                    ),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.provaNome ?? 'Nome da Prova',
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Data: ${widget.provaData ?? "12/05/2023"}',
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 12),
+          _buildStatusBadge(submission),
+          if (submission?.status == SubmissionStatus.graded) ...[
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: _scoreCard(
+                    label: 'Nota',
+                    value: '${submission!.acertos}/${submission.totalQuestoes}',
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _statBox(
-                      title: 'Acertos',
-                      value: '${submission.acertos}',
-                    ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _scoreCard(
+                    label: 'Aproveitamento',
+                    value:
+                        '${((submission.acertos! / submission.totalQuestoes!) * 100).toInt()}%',
                   ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ],
-        ),
+        ],
+      ),
+    );
+  }
+
+  Widget _scoreCard({required String label, required String value}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -319,7 +359,7 @@ class _DetailsExamsStudentScreensState
         message = 'Upload em andamento...';
         break;
       case SubmissionStatus.processingAnalysis:
-        message = 'Analisando gabarito...';
+        message = 'Analisando imagem e calculando nota...';
         break;
       case SubmissionStatus.aiValidation:
         message = 'Validando qualidade da imagem...';
@@ -442,30 +482,58 @@ class _DetailsExamsStudentScreensState
     BuildContext context,
     SubmissionModel? existingSubmission,
   ) {
+    if (existingSubmission?.status == SubmissionStatus.graded) {
+      return Column(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                // TODO: Implementar download do relatório
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Download não implementado')),
+                );
+              },
+              icon: const Icon(Icons.download),
+              label: const Text('Baixar Relatório'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: const Color(0xFF4A90E2),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: TextButton(
+              onPressed: () =>
+                  _openSubmissionModal(context, existingSubmission),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: Colors.grey[200],
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                'Reprocessar',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: () async {
-          final result = await showModalBottomSheet<SubmissionModel>(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) => SubmissionUploadModal(
-              provaId: widget.provaId,
-              alunoId: widget.alunoId,
-              existingSubmission: existingSubmission,
-            ),
-          );
-
-          if (result != null) {
-            // Atualizar a tela com a nova submissão
-            setState(() {});
-            context.read<SubmissionCubit>().getSubmission(
-              widget.provaId,
-              widget.alunoId,
-            );
-          }
-        },
+        onPressed: () => _openSubmissionModal(context, existingSubmission),
         icon: const Icon(Icons.camera_alt),
         label: Text(
           existingSubmission == null
@@ -484,31 +552,31 @@ class _DetailsExamsStudentScreensState
     );
   }
 
-  Widget _statBox({required String title, required String value}) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 230, 229, 229),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 12, color: Colors.black),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-        ],
+  Future<void> _openSubmissionModal(
+    BuildContext context,
+    SubmissionModel? existingSubmission,
+  ) async {
+    final result = await showModalBottomSheet<SubmissionModel>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => SubmissionUploadModal(
+        provaId: widget.provaId,
+        alunoId: widget.alunoId,
+        existingSubmission: existingSubmission,
       ),
     );
+
+    if (result != null) {
+      // Atualizar a tela com a nova submissão imediatamente
+      context.read<SubmissionCubit>().updateSubmission(result);
+
+      // Buscar dados atualizados do banco (para garantir sincronia)
+      context.read<SubmissionCubit>().getSubmission(
+        widget.provaId,
+        widget.alunoId,
+      );
+    }
   }
 
   Widget _headerRow() {

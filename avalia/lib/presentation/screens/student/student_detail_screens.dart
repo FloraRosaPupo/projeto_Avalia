@@ -1,5 +1,7 @@
 import 'package:avalia/core/state/base_state.dart';
+import 'package:avalia/data/models/student_exam_model.dart';
 import 'package:avalia/data/models/student_performance_model.dart';
+import 'package:avalia/presentation/cubit/student_exams_cubit.dart';
 import 'package:avalia/presentation/cubit/student_performance_cubit.dart';
 import 'package:avalia/presentation/screens/student/student_details_exams_screens.dart';
 import 'package:flutter/material.dart';
@@ -20,9 +22,18 @@ class StudentDetailScreens extends StatefulWidget {
 class _StudentDetailScreensState extends State<StudentDetailScreens> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          StudentPerformanceCubit()..getStudentPerformance(widget.studentId),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) =>
+              StudentPerformanceCubit()
+                ..getStudentPerformance(widget.studentId),
+        ),
+        BlocProvider(
+          create: (context) =>
+              StudentExamsCubit()..getStudentExams(widget.studentId),
+        ),
+      ],
       child: BlocBuilder<StudentPerformanceCubit, BaseState>(
         builder: (context, state) {
           StudentPerformanceModel? performance;
@@ -319,61 +330,117 @@ class _StudentDetailScreensState extends State<StudentDetailScreens> {
                                         ),
                                       ),
                                       // Provas tab
-                                      ListView.separated(
-                                        itemCount: 5,
-                                        separatorBuilder: (context, index) =>
-                                            const SizedBox(height: 8),
-                                        itemBuilder: (context, index) {
-                                          return GestureDetector(
-                                            onTap: () {
-                                              showModalBottomSheet(
-                                                context: context,
-                                                isScrollControlled: true,
-                                                builder: (BuildContext context) {
-                                                  return SizedBox(
-                                                    height: 450,
-                                                    child:
-                                                        const ExamsCorrectionStudent(),
-                                                  );
-                                                },
+                                      BlocBuilder<StudentExamsCubit, BaseState>(
+                                        builder: (context, state) {
+                                          if (state is LoadingState) {
+                                            return const Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            );
+                                          } else if (state is ErrorState) {
+                                            return Center(
+                                              child: Text(
+                                                'Erro ao carregar provas: ${state.message}',
+                                              ),
+                                            );
+                                          } else if (state
+                                              is SuccessState<
+                                                List<StudentExamModel>
+                                              >) {
+                                            final exams = state.data;
+                                            if (exams.isEmpty) {
+                                              return const Center(
+                                                child: Text(
+                                                  'Nenhuma prova encontrada.',
+                                                ),
                                               );
-                                            },
-                                            child: InkWell(
-                                              onTap: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        DetailsExamsStudentScreens(
-                                                          provaId:
-                                                              'prova_$index', // TODO: usar ID real da prova
-                                                          alunoId: widget
-                                                              .studentId
-                                                              .toString(),
-                                                          provaNome:
-                                                              'Prova $index',
-                                                          provaData:
-                                                              '12/05/2023',
+                                            }
+                                            return ListView.separated(
+                                              itemCount: exams.length,
+                                              separatorBuilder:
+                                                  (context, index) =>
+                                                      const SizedBox(height: 8),
+                                              itemBuilder: (context, index) {
+                                                final exam = exams[index];
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    showModalBottomSheet(
+                                                      context: context,
+                                                      isScrollControlled: true,
+                                                      builder:
+                                                          (
+                                                            BuildContext
+                                                            context,
+                                                          ) {
+                                                            return SizedBox(
+                                                              height: 450,
+                                                              child:
+                                                                  const ExamsCorrectionStudent(),
+                                                            );
+                                                          },
+                                                    );
+                                                  },
+                                                  child: InkWell(
+                                                    onTap: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              DetailsExamsStudentScreens(
+                                                                provaId: exam
+                                                                    .provaId
+                                                                    .toString(),
+                                                                alunoId: widget
+                                                                    .studentId
+                                                                    .toString(),
+                                                                provaNome:
+                                                                    exam.nome,
+                                                                provaData:
+                                                                    exam.data !=
+                                                                        null
+                                                                    ? '${exam.data!.day}/${exam.data!.month}/${exam.data!.year}'
+                                                                    : 'Sem data',
+                                                              ),
                                                         ),
+                                                      );
+                                                    },
+                                                    child: CardExamsScreens(
+                                                      title: exam.nome,
+                                                      status: exam.status,
+                                                      colorBorder:
+                                                          exam.status ==
+                                                              'Corrigida'
+                                                          ? Colors.green
+                                                          : Colors.orange,
+                                                      colorBackground:
+                                                          exam.status ==
+                                                              'Corrigida'
+                                                          ? const Color.fromARGB(
+                                                              19,
+                                                              121,
+                                                              197,
+                                                              121,
+                                                            )
+                                                          : const Color.fromARGB(
+                                                              26,
+                                                              247,
+                                                              180,
+                                                              80,
+                                                            ),
+                                                      icon:
+                                                          exam.status ==
+                                                              'Corrigida'
+                                                          ? Icons
+                                                                .check_circle_outline
+                                                          : Icons
+                                                                .pending_outlined,
+                                                    ),
                                                   ),
                                                 );
                                               },
-                                              child: CardExamsScreens(
-                                                title: 'Prova $index',
-                                                status: 'Concluido',
-                                                colorBorder: Colors.green,
-                                                colorBackground:
-                                                    const Color.fromARGB(
-                                                      19,
-                                                      121,
-                                                      197,
-                                                      121,
-                                                    ),
-                                                icon:
-                                                    Icons.check_circle_outline,
-                                              ),
-                                            ),
-                                          );
+                                            );
+                                          }
+                                          return const SizedBox.shrink();
                                         },
                                       ),
                                     ],
