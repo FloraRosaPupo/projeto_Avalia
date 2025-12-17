@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class SubmissionModel {
   final String? id;
   final String provaId;
@@ -31,11 +33,30 @@ class SubmissionModel {
     this.attemptNumber = 1,
   });
 
+  static List<QuestionDetail>? _parseRespostasToDetalhamento(
+    dynamic respostas,
+  ) {
+    if (respostas == null) return null;
+
+    dynamic decoded = respostas;
+    if (decoded is String) {
+      decoded = jsonDecode(decoded);
+    }
+
+    if (decoded is! List) return null;
+
+    return decoded
+        .whereType<Map>()
+        .map((e) => Map<String, dynamic>.from(e))
+        .map(QuestionDetail.fromRespostasJson)
+        .toList();
+  }
+
   factory SubmissionModel.fromJson(Map<String, dynamic> json) {
     return SubmissionModel(
-      id: json['id'] as String?,
-      provaId: json['prova_id'] as String,
-      alunoId: json['aluno_id'] as String,
+      id: json['id']?.toString(),
+      provaId: json['prova_id'].toString(),
+      alunoId: json['aluno_id'].toString(),
       imageUrl: json['image_url'] as String?,
       status: SubmissionStatus.fromString(
         json['status'] as String? ?? 'pending',
@@ -47,7 +68,7 @@ class SubmissionModel {
           ? (json['detalhamento'] as List)
                 .map((e) => QuestionDetail.fromJson(e as Map<String, dynamic>))
                 .toList()
-          : null,
+          : _parseRespostasToDetalhamento(json['respostas']),
       issues: json['issues'] != null
           ? (json['issues'] as List)
                 .map((e) => SubmissionIssue.fromJson(e as Map<String, dynamic>))
@@ -164,6 +185,16 @@ class QuestionDetail {
       confidence: json['confidence'] != null
           ? (json['confidence'] as num).toDouble()
           : null,
+    );
+  }
+
+  factory QuestionDetail.fromRespostasJson(Map<String, dynamic> json) {
+    return QuestionDetail(
+      questionNumber: (json['questao'] as num).toInt(),
+      studentAnswer: json['resposta_aluno']?.toString(),
+      officialAnswer: json['resposta_correta']?.toString() ?? '',
+      isCorrect: json['correta'] == true,
+      confidence: null,
     );
   }
 

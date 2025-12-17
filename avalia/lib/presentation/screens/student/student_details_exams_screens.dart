@@ -49,12 +49,17 @@ class _DetailsExamsStudentScreensState
         ),
         body: BlocBuilder<SubmissionCubit, BaseState>(
           builder: (context, state) {
+            print('DEBUG: Current State: $state');
             SubmissionModel? submission;
 
             if (state is SuccessState<SubmissionModel>) {
               submission = state.data;
             } else if (state is SuccessState<SubmissionModel?>) {
               submission = state.data;
+            }
+            print('DEBUG: Submission Object: $submission');
+            if (submission != null) {
+              print('DEBUG: Submission Status: ${submission.status}');
             }
 
             return SingleChildScrollView(

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:lottie/lottie.dart';
 import 'package:avalia/presentation/cubit/submission_cubit.dart';
 import 'package:avalia/data/models/submission_model.dart';
 
@@ -83,6 +84,7 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
   // ---------------------------------------------------------------------
   Widget _buildImageSourceSelection(BuildContext context) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -184,6 +186,7 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
 
   Widget _buildImagePreview(BuildContext context) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -252,6 +255,7 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
 
   Widget _buildUploadProgress(BuildContext context, int percent) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -307,6 +311,7 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
         stepDescription = 'Aguarde...';
     }
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -320,7 +325,16 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
-          const CircularProgressIndicator(),
+          SizedBox(
+            height: 110,
+            child: Lottie.network(
+              'https://lottie.host/84fb930b-82d1-4a00-add4-140b822062ca/rvImINITg2.json',
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) {
+                return const Center(child: CircularProgressIndicator());
+              },
+            ),
+          ),
           const SizedBox(height: 24),
           Text(
             stepText,
@@ -344,6 +358,7 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
     SubmissionNeedsReviewState state,
   ) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
         color: Colors.white,
