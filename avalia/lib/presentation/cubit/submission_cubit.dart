@@ -46,12 +46,13 @@ class SubmissionCubit extends Cubit<BaseState> {
   /// Validação pré-upload (cliente)
   Future<ValidationResult> validateImage(File imageFile) async {
     try {
-      // Verificar tamanho do arquivo (< 8MB)
+      // Verificar tamanho do arquivo (< 50MB)
       final fileSize = await imageFile.length();
-      if (fileSize > 8 * 1024 * 1024) {
+      const maxSize = 50 * 1024 * 1024; // 50MB in bytes
+      if (fileSize > maxSize) {
         return ValidationResult(
           isValid: false,
-          error: 'Imagem muito grande. Tamanho máximo: 8MB',
+          error: 'Arquivo muito grande. Tamanho máximo: 50MB',
         );
       }
 
