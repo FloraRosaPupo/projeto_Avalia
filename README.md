@@ -1,63 +1,140 @@
-# 📚 Avalia
+<div align="center">
+📚 Avalia
 
-O **Avalia** é um aplicativo para professores corrigirem provas de forma rápida e automática, usando foto da folha de respostas.  
-Ele conecta **Flutter + Supabase + n8n** para oferecer uma experiência simples e escalável no processo de avaliação.
+Correção inteligente de provas objetivas a partir de fotos
+<br/>
 
----
 
-## 🚀 Funcionalidades do MVP
 
-### 👨‍🏫 Para Professores
-- **Gestão Acadêmica**  
-  - Cadastro de matérias e turmas.  
-  - Criação/edição de turmas com vínculo a uma ou mais matérias.  
 
-- **Provas**  
-  - Cadastro de provas com título, número de questões e gabarito.  
-  - Gabarito bloqueado após início da correção.  
 
-- **Correção por Foto**  
-  - Tirar foto ou enviar imagem da folha de respostas preenchida.  
-  - Correção automática via n8n (OCR + QR Code + comparação com gabarito).  
-  - Resultado instantâneo com nota e detalhamento por questão.  
 
-- **Resultados e Ranking**  
-  - Lista de submissões da prova (aluno, nota, horário).  
-  - Ranking da turma por prova.  
-  - Exportação de resultados para Google Sheets.  
 
----
 
-## ⚙️ Arquitetura Técnica
-- **Frontend**: Flutter  
-- **Backend**: Supabase (Auth, Database, Storage)  
-- **Automação**: n8n (OCR, leitura de QR, cálculo de notas, integração Sheets)  
+</div>
+✨ Visão Geral
 
-Fluxo básico:  
-1. Professor cria turmas e provas.  
-2. Folhas de resposta (PDF com QR Code) são geradas por aluno.  
-3. O professor tira foto da folha → imagem sobe para o Supabase Storage.  
-4. O n8n processa a imagem, identifica o aluno/prova, corrige e grava a nota.  
-5. O app exibe resultado + ranking da turma.  
+O Avalia é uma plataforma que automatiza a correção de provas objetivas usando inteligência artificial.
+Professores tiram uma foto da folha de respostas e recebem, em segundos, a nota, o detalhamento por questão e o ranking da turma.
 
----
+📸 Foto → 🤖 IA → 📊 Resultado
+Sem planilha, sem caneta vermelha, sem dor de cabeça.
 
-## 🛠️ Tecnologias
-- Flutter  
-- Supabase (Postgres + Storage + Auth)  
-- n8n  
-- Google Sheets API  
+🎯 Objetivo
 
----
+Reduzir o tempo e o esforço na correção de provas, oferecendo:
 
-## 📌 Roadmap (Futuras Funcionalidades)
-- Reprocessar fotos com problemas.  
-- Detecção de inconsistências (respostas múltiplas).  
-- Histórico de notas por aluno/turma/matéria.  
-- Filtros e buscas avançadas.  
+Correção automática confiável
 
----
+Feedback imediato
 
-## 🤝 Contribuição
-Pull requests são bem-vindos! Para mudanças maiores, abra uma issue antes.  
+Organização clara dos resultados por turma
 
+🚀 Funcionalidades do MVP
+👨‍🏫 Área do Professor
+📚 Gestão Acadêmica
+
+Cadastro de matérias.
+
+Criação e gerenciamento de turmas.
+
+Associação de turmas a uma ou mais matérias.
+
+📝 Provas
+
+Criação de provas com:
+
+Título
+
+Número de questões
+
+Alternativas (A–E)
+
+Gabarito
+
+Bloqueio automático do gabarito após o início da correção.
+
+📷 Correção por Foto (IA)
+
+Envio da imagem da folha de respostas.
+
+Processamento via Google Gemini:
+
+Identificação das alternativas marcadas.
+
+Detecção de rasuras e respostas inválidas.
+
+Comparação direta com o gabarito.
+
+Retorno imediato com:
+
+Nota final
+
+Acertos e erros por questão.
+
+📊 Resultados
+
+Lista de submissões por prova.
+
+Nota, aluno e horário de envio.
+
+Ranking automático da turma.
+
+🧠 Arquitetura
+Flutter App
+   │
+   │  (upload da imagem)
+   ▼
+Supabase Storage
+   │
+   │  (Edge Function)
+   ▼
+Google Gemini API
+   │
+   │  (respostas + nota)
+   ▼
+Supabase Database
+   │
+   ▼
+Flutter App (resultados e ranking)
+
+🛠️ Stack Tecnológica
+Camada	Tecnologia
+Frontend	Flutter
+Backend	Supabase
+Banco	PostgreSQL
+Storage	Supabase Storage
+Funções	Supabase Edge Functions
+IA	Google Gemini API
+🔒 Segurança e Confiabilidade
+
+Autenticação via Supabase Auth.
+
+Gabarito bloqueado após início das correções.
+
+Processamento isolado por prova.
+
+Histórico de submissões preservado.
+
+🧭 Roadmap
+
+Reprocessamento de imagens com baixa qualidade.
+
+Detecção avançada de inconsistências.
+
+Histórico de notas por aluno, turma e matéria.
+
+Filtros e buscas avançadas.
+
+Métricas de desempenho por turma.
+
+🤝 Contribuição
+
+Contribuições são bem-vindas!
+Para mudanças maiores, abra uma issue antes.
+
+<div align="center">
+
+⭐ Se esse projeto te ajudou ou te inspirou, deixa uma estrela! ⭐
+
+</div>
