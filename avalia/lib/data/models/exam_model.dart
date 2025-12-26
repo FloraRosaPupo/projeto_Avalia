@@ -34,6 +34,11 @@ class ExamModel {
     );
   }
 
+  String get statusFormatted {
+    if (status == null || status!.isEmpty) return '';
+    return status![0].toUpperCase() + status!.substring(1).toLowerCase();
+  }
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'created_at': createdAt.toIso8601String(),

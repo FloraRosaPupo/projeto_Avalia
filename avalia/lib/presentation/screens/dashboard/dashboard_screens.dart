@@ -7,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:avalia/presentation/screens/login_screen.dart';
 import 'package:avalia/presentation/cubit/dashboard_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:avalia/core/navigation/app_route_observer.dart';
 import '../../../core/state/base_state.dart';
 import '../../../data/models/dashboard_model.dart';
 
@@ -17,10 +18,13 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState
+    extends AutoRefreshRouteAwareState<DashboardScreen> {
   String? nome;
   String? email;
   String? userId;
+
+  DashboardCubit? _cubit;
 
   @override
   void initState() {
@@ -35,10 +39,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   @override
+  Future<void> refreshData() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final cubit = _cubit;
+      final id = userId;
+      if (cubit == null || id == null) return;
+      cubit.getRecentActivities(userId: id, limit: 10, isRefresh: true);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          DashboardCubit()..getRecentActivities(userId: userId!, limit: 10),
+      create: (_) {
+        final cubit = DashboardCubit();
+        _cubit = cubit;
+        if (userId != null) {
+          cubit.getRecentActivities(userId: userId!, limit: 10);
+        }
+        return cubit;
+      },
       child: BlocConsumer<DashboardCubit, BaseState>(
         listener: (context, state) {
           if (state is ErrorState) {

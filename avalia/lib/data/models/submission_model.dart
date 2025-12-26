@@ -147,7 +147,7 @@ enum SubmissionStatus {
   processingAnalysis('processing_analysis'),
   aiValidation('ai_validation'),
   reviewNeeded('review_needed'),
-  graded('graded'),
+  graded('Concluida'),
   error('error');
 
   final String value;
@@ -158,6 +158,25 @@ enum SubmissionStatus {
       (e) => e.value == value,
       orElse: () => SubmissionStatus.pending,
     );
+  }
+
+  String get formatted {
+    switch (this) {
+      case SubmissionStatus.pending:
+        return 'Pending';
+      case SubmissionStatus.processingUpload:
+        return 'Processing Upload';
+      case SubmissionStatus.processingAnalysis:
+        return 'Processing Analysis';
+      case SubmissionStatus.aiValidation:
+        return 'AI Validation';
+      case SubmissionStatus.reviewNeeded:
+        return 'Review Needed';
+      case SubmissionStatus.graded:
+        return 'Concluida';
+      case SubmissionStatus.error:
+        return 'Error';
+    }
   }
 }
 

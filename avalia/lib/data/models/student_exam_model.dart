@@ -27,4 +27,9 @@ class StudentExamModel {
       cor: json['cor'],
     );
   }
+
+  String get statusFormatted {
+    if (status.isEmpty) return '';
+    return status[0].toUpperCase() + status.substring(1).toLowerCase();
+  }
 }

@@ -75,8 +75,35 @@ class _ModalCreatedExamsState extends State<ModalCreatedExams> {
         imageQuality: 85,
       );
       if (image != null) {
+        final file = File(image.path);
+        final fileSize = await file.length();
+        const maxSize = 50 * 1024 * 1024; // 50MB in bytes
+
+        if (fileSize > maxSize) {
+          if (mounted) {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Arquivo muito grande'),
+                content: Text(
+                  'O arquivo selecionado tem ${_formatFileSize(fileSize)}.\n\n'
+                  'O tamanho máximo permitido é 50MB.\n\n'
+                  'Por favor, selecione uma imagem menor ou comprima a imagem atual.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('OK'),
+                  ),
+                ],
+              ),
+            );
+          }
+          return;
+        }
+
         setState(() {
-          _gabaritoImage = File(image.path);
+          _gabaritoImage = file;
         });
       }
     } catch (e) {
@@ -84,6 +111,12 @@ class _ModalCreatedExamsState extends State<ModalCreatedExams> {
         context,
       ).showSnackBar(SnackBar(content: Text('Erro ao selecionar imagem: $e')));
     }
+  }
+
+  String _formatFileSize(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 
   Future<void> _saveExam(BuildContext context) async {
@@ -132,8 +165,7 @@ class _ModalCreatedExamsState extends State<ModalCreatedExams> {
         'nome': _nameController.text,
         'cor': picked.value.toRadixString(16).substring(2),
         'url_prova': gabaritoUrl,
-        'user_id': userId,
-        'status': 'Aberto', // Mantém 'Aberto' ou atualiza se necessário
+        'user_id': userId,        
         'turmas_id': _selectedClasses.map((c) => c.id).toList(),
       };
 

@@ -1,13 +1,14 @@
 import 'package:avalia/core/state/base_state.dart';
 import 'package:avalia/data/models/student_exam_model.dart';
 import 'package:avalia/data/models/student_performance_model.dart';
-import 'package:avalia/presentation/cubit/student_exams_cubit.dart';
 import 'package:avalia/presentation/cubit/student_performance_cubit.dart';
+import 'package:avalia/presentation/cubit/exams_cubit.dart';
 import 'package:avalia/presentation/screens/student/student_details_exams_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:avalia/presentation/screens/exams/exams_card_screens.dart';
 import 'package:avalia/presentation/screens/exams/exams_correction_student.dart';
+import 'package:avalia/core/navigation/app_route_observer.dart';
 
 class StudentDetailScreens extends StatefulWidget {
   final int studentId;
@@ -19,19 +20,39 @@ class StudentDetailScreens extends StatefulWidget {
   State<StudentDetailScreens> createState() => _StudentDetailScreensState();
 }
 
-class _StudentDetailScreensState extends State<StudentDetailScreens> {
+class _StudentDetailScreensState
+    extends AutoRefreshRouteAwareState<StudentDetailScreens> {
+  StudentPerformanceCubit? _performanceCubit;
+  ExamsCubit? _examsCubit;
+
+  @override
+  Future<void> refreshData() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _performanceCubit?.getStudentPerformance(widget.studentId);
+      _examsCubit?.getStudentExams(widget.studentId);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) =>
-              StudentPerformanceCubit()
-                ..getStudentPerformance(widget.studentId),
+          create: (context) {
+            final cubit = StudentPerformanceCubit();
+            _performanceCubit = cubit;
+            cubit.getStudentPerformance(widget.studentId);
+            return cubit;
+          },
         ),
         BlocProvider(
-          create: (context) =>
-              StudentExamsCubit()..getStudentExams(widget.studentId),
+          create: (context) {
+            final cubit = ExamsCubit();
+            _examsCubit = cubit;
+            cubit.getStudentExams(widget.studentId);
+            return cubit;
+          },
         ),
       ],
       child: BlocBuilder<StudentPerformanceCubit, BaseState>(
@@ -330,7 +351,7 @@ class _StudentDetailScreensState extends State<StudentDetailScreens> {
                                         ),
                                       ),
                                       // Provas tab
-                                      BlocBuilder<StudentExamsCubit, BaseState>(
+                                      BlocBuilder<ExamsCubit, BaseState>(
                                         builder: (context, state) {
                                           if (state is LoadingState) {
                                             return const Center(
@@ -406,15 +427,16 @@ class _StudentDetailScreensState extends State<StudentDetailScreens> {
                                                     },
                                                     child: CardExamsScreens(
                                                       title: exam.nome,
-                                                      status: exam.status,
+                                                      status:
+                                                          exam.statusFormatted,
                                                       colorBorder:
                                                           exam.status ==
-                                                              'Corrigida'
+                                                              'concluida'
                                                           ? Colors.green
                                                           : Colors.orange,
                                                       colorBackground:
                                                           exam.status ==
-                                                              'Corrigida'
+                                                              'concluida'
                                                           ? const Color.fromARGB(
                                                               19,
                                                               121,

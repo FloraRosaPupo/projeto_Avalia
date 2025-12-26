@@ -3,6 +3,7 @@ import 'package:avalia/data/models/exam_model.dart';
 import 'package:avalia/presentation/cubit/exams_cubit.dart';
 import 'package:avalia/presentation/screens/exams/exams_card_screens.dart';
 import 'package:avalia/presentation/screens/exams/exams_created_modal.dart';
+import 'package:avalia/core/navigation/app_route_observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -14,13 +15,26 @@ class ExamsScreens extends StatefulWidget {
   State<ExamsScreens> createState() => _ExamsScreensState();
 }
 
-class _ExamsScreensState extends State<ExamsScreens> {
+class _ExamsScreensState extends AutoRefreshRouteAwareState<ExamsScreens> {
   String? userId;
+
+  ExamsCubit? _cubit;
 
   @override
   void initState() {
     super.initState();
     userId = Supabase.instance.client.auth.currentUser?.id;
+  }
+
+  @override
+  Future<void> refreshData() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final cubit = _cubit;
+      final id = userId;
+      if (cubit == null || id == null) return;
+      cubit.getExamsByUserId(id);
+    });
   }
 
   Color _parseColor(String? colorString) {
@@ -64,6 +78,7 @@ class _ExamsScreensState extends State<ExamsScreens> {
     return BlocProvider(
       create: (context) {
         final cubit = ExamsCubit();
+        _cubit = cubit;
         if (userId != null) {
           cubit.getExamsByUserId(userId!);
         }
@@ -123,7 +138,7 @@ class _ExamsScreensState extends State<ExamsScreens> {
                           onTap: () => _openExamModal(context, exam),
                           child: CardExamsScreens(
                             title: exam.nome ?? 'Prova ${exam.id}',
-                            status: exam.status ?? 'Pendente',
+                            status: exam.statusFormatted,
                             colorBorder: color,
                             colorBackground: color.withOpacity(0.2),
                             icon: Icons.article,

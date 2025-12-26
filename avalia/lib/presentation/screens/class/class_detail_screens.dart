@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:avalia/presentation/screens/student/student_card_class.dart';
 import 'package:avalia/presentation/screens/student/student_cretead_modal.dart';
 import 'package:avalia/presentation/screens/class/class_created_modal.dart';
+import 'package:avalia/core/navigation/app_route_observer.dart';
 
 class ClassDetailScreens extends StatefulWidget {
   final int classId;
@@ -18,12 +19,29 @@ class ClassDetailScreens extends StatefulWidget {
   State<ClassDetailScreens> createState() => _ClassDetailScreensState();
 }
 
-class _ClassDetailScreensState extends State<ClassDetailScreens> {
+class _ClassDetailScreensState
+    extends AutoRefreshRouteAwareState<ClassDetailScreens> {
+  ClassCubit? _cubit;
+
+  @override
+  Future<void> refreshData() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final cubit = _cubit;
+      if (cubit == null) return;
+      cubit.getClassDetails(classId: widget.classId);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          ClassCubit()..getClassDetails(classId: widget.classId),
+      create: (context) {
+        final cubit = ClassCubit();
+        _cubit = cubit;
+        cubit.getClassDetails(classId: widget.classId);
+        return cubit;
+      },
       child: Scaffold(
         backgroundColor: const Color(0xFFFAFAFA),
         appBar: AppBar(
@@ -211,7 +229,7 @@ class _ClassDetailScreensState extends State<ClassDetailScreens> {
                                                 classDetail.provas[index];
                                             return CardExamsScreens(
                                               title: prova.nome,
-                                              status: prova.status,
+                                              status: prova.statusFormatted,
                                               colorBorder: HexColor(
                                                 prova.cor,
                                               ), // Assuming HexColor helper exists or I need to parse it.

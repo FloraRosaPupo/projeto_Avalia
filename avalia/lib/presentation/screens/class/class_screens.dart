@@ -4,6 +4,7 @@ import 'package:avalia/presentation/screens/class/class_created_modal.dart';
 import 'package:avalia/presentation/cubit/class_cubit.dart';
 import 'package:avalia/core/state/base_state.dart';
 import 'package:avalia/data/models/class_model.dart';
+import 'package:avalia/core/navigation/app_route_observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -15,8 +16,10 @@ class ClassScreens extends StatefulWidget {
   State<ClassScreens> createState() => _ClassScreensState();
 }
 
-class _ClassScreensState extends State<ClassScreens> {
+class _ClassScreensState extends AutoRefreshRouteAwareState<ClassScreens> {
   String? userId;
+
+  ClassCubit? _cubit;
 
   @override
   void initState() {
@@ -27,9 +30,27 @@ class _ClassScreensState extends State<ClassScreens> {
   }
 
   @override
+  Future<void> refreshData() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final cubit = _cubit;
+      final id = userId;
+      if (cubit == null || id == null) return;
+      cubit.getClassesByUserId(userId: id);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => ClassCubit()..getClassesByUserId(userId: userId!),
+      create: (_) {
+        final cubit = ClassCubit();
+        _cubit = cubit;
+        if (userId != null) {
+          cubit.getClassesByUserId(userId: userId!);
+        }
+        return cubit;
+      },
       child: BlocConsumer<ClassCubit, BaseState>(
         listener: (context, state) {
           if (state is ErrorState) {

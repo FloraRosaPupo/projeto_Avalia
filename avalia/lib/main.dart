@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'presentation/screens/login_screen.dart';
+import 'core/navigation/app_route_observer.dart';
 import 'theme.dart';
 
 void main() async {
@@ -23,7 +24,8 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: appTheme,
-      home:  LoginScreen(),
+      navigatorObservers: [appRouteObserver],
+      home: LoginScreen(),
     );
   }
 }

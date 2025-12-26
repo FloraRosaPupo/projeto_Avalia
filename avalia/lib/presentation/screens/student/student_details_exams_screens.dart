@@ -4,6 +4,7 @@ import 'package:avalia/core/state/base_state.dart';
 import 'package:avalia/data/models/submission_model.dart';
 import 'package:avalia/presentation/cubit/submission_cubit.dart';
 import 'package:avalia/presentation/widgets/submission_upload_modal.dart';
+import 'package:avalia/core/navigation/app_route_observer.dart';
 
 class DetailsExamsStudentScreens extends StatefulWidget {
   final String provaId;
@@ -25,12 +26,28 @@ class DetailsExamsStudentScreens extends StatefulWidget {
 }
 
 class _DetailsExamsStudentScreensState
-    extends State<DetailsExamsStudentScreens> {
+    extends AutoRefreshRouteAwareState<DetailsExamsStudentScreens> {
+  SubmissionCubit? _cubit;
+
+  @override
+  Future<void> refreshData() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final cubit = _cubit;
+      if (cubit == null) return;
+      cubit.getSubmission(widget.provaId, widget.alunoId);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          SubmissionCubit()..getSubmission(widget.provaId, widget.alunoId),
+      create: (context) {
+        final cubit = SubmissionCubit();
+        _cubit = cubit;
+        cubit.getSubmission(widget.provaId, widget.alunoId);
+        return cubit;
+      },
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -192,16 +209,16 @@ class _DetailsExamsStudentScreensState
           color: Colors.grey.shade200,
           borderRadius: BorderRadius.circular(20),
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.pending_outlined, color: Colors.grey),
-            SizedBox(width: 8),
+            const Icon(Icons.pending, color: Colors.black),
+            const SizedBox(width: 8),
             Text(
-              'Aguardando Submissão',
-              style: TextStyle(
+              submission?.status.formatted ?? 'Pendente',
+              style: const TextStyle(
                 fontSize: 16,
-                color: Colors.grey,
+                color: Colors.black,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -212,29 +229,24 @@ class _DetailsExamsStudentScreensState
 
     Color badgeColor;
     IconData badgeIcon;
-    String badgeText;
 
     switch (submission.status) {
       case SubmissionStatus.graded:
         badgeColor = const Color.fromARGB(59, 132, 231, 135);
         badgeIcon = Icons.check_circle_outline;
-        badgeText = 'Corrigida';
         break;
       case SubmissionStatus.reviewNeeded:
         badgeColor = const Color.fromARGB(26, 247, 180, 80);
         badgeIcon = Icons.warning_amber_rounded;
-        badgeText = 'Revisão Necessária';
         break;
       case SubmissionStatus.processingAnalysis:
       case SubmissionStatus.aiValidation:
         badgeColor = Colors.blue.shade50;
         badgeIcon = Icons.hourglass_empty;
-        badgeText = 'Processando';
         break;
       default:
         badgeColor = Colors.grey.shade200;
         badgeIcon = Icons.pending;
-        badgeText = 'Pendente';
     }
 
     return Container(
@@ -249,7 +261,7 @@ class _DetailsExamsStudentScreensState
           Icon(badgeIcon, color: Colors.black),
           const SizedBox(width: 8),
           Text(
-            badgeText,
+            submission.status.formatted,
             style: const TextStyle(
               fontSize: 16,
               color: Colors.black,

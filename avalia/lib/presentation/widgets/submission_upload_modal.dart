@@ -125,6 +125,31 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
               ],
             ),
           ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.orange.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.orange.shade200),
+            ),
+            child: Row(
+              children: const [
+                Icon(
+                  Icons.warning_amber_outlined,
+                  color: Colors.orange,
+                  size: 20,
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Tamanho máximo: 50MB por imagem',
+                    style: TextStyle(fontSize: 14, color: Colors.orange),
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 24),
           _buildSourceButton(
             context,
@@ -414,10 +439,43 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
       maxWidth: 1080,
     );
     if (picked != null) {
+      final file = File(picked.path);
+      final fileSize = await file.length();
+      const maxSize = 50 * 1024 * 1024; // 50MB in bytes
+
+      if (fileSize > maxSize) {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Arquivo muito grande'),
+              content: Text(
+                'O arquivo selecionado tem ${_formatFileSize(fileSize)}.\n\n'
+                'O tamanho máximo permitido é 50MB.\n\n'
+                'Por favor, selecione uma imagem menor ou comprima a imagem atual.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        }
+        return;
+      }
+
       setState(() {
-        _selectedImage = File(picked.path);
+        _selectedImage = file;
       });
     }
+  }
+
+  String _formatFileSize(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 
   void _uploadImage(BuildContext context) {
