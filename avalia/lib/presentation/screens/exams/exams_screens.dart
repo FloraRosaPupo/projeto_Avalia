@@ -1,5 +1,6 @@
 import 'package:avalia/core/state/base_state.dart';
 import 'package:avalia/data/models/exam_model.dart';
+import 'package:avalia/data/models/student_exam_model.dart';
 import 'package:avalia/presentation/cubit/exams_cubit.dart';
 import 'package:avalia/presentation/screens/exams/exams_card_screens.dart';
 import 'package:avalia/presentation/screens/exams/exams_created_modal.dart';
@@ -31,9 +32,10 @@ class _ExamsScreensState extends AutoRefreshRouteAwareState<ExamsScreens> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final cubit = _cubit;
-      final id = userId;
-      if (cubit == null || id == null) return;
-      cubit.getExamsByUserId(id);
+
+      if (cubit == null || userId == '') return;
+      print('${userId}');
+      cubit.getStudentByUserID(userId!);
     });
   }
 
@@ -51,7 +53,20 @@ class _ExamsScreensState extends AutoRefreshRouteAwareState<ExamsScreens> {
     }
   }
 
-  void _openExamModal(BuildContext context, [ExamModel? exam]) {
+  void _openExamModal(BuildContext context, [StudentExamModel? exam]) {
+    // Converte StudentExamModel para ExamModel se necessário
+    ExamModel? examModal;
+    if (exam != null) {
+      examModal = ExamModel(
+        id: exam.provaId,
+        createdAt: exam.data ?? DateTime.now(),
+        turmasId: [], // Não disponível no StudentExamModel
+        nome: exam.nome,
+        cor: exam.cor,
+        status: exam.status,
+      );
+    }
+
     showModalBottomSheet(
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
@@ -63,12 +78,12 @@ class _ExamsScreensState extends AutoRefreshRouteAwareState<ExamsScreens> {
       context: context,
       isScrollControlled: true, // Importante para modais com input
       builder: (BuildContext context) {
-        return ModalCreatedExams(exam: exam);
+        return ModalCreatedExams(exam: examModal);
       },
     ).then((result) {
       if (result == true && userId != null) {
         // Recarrega a lista se houve alteração
-        context.read<ExamsCubit>().getExamsByUserId(userId!);
+        context.read<ExamsCubit>().getStudentByUserID(userId!);
       }
     });
   }
@@ -80,7 +95,7 @@ class _ExamsScreensState extends AutoRefreshRouteAwareState<ExamsScreens> {
         final cubit = ExamsCubit();
         _cubit = cubit;
         if (userId != null) {
-          cubit.getExamsByUserId(userId!);
+          cubit.getStudentByUserID(userId!);
         }
         return cubit;
       },
@@ -114,7 +129,7 @@ class _ExamsScreensState extends AutoRefreshRouteAwareState<ExamsScreens> {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                if (state is SuccessState<List<ExamModel>>) {
+                if (state is SuccessState<List<StudentExamModel>>) {
                   final exams = state.data;
 
                   if (exams.isEmpty) {
@@ -137,7 +152,7 @@ class _ExamsScreensState extends AutoRefreshRouteAwareState<ExamsScreens> {
                         return InkWell(
                           onTap: () => _openExamModal(context, exam),
                           child: CardExamsScreens(
-                            title: exam.nome ?? 'Prova ${exam.id}',
+                            title: exam.nome,
                             status: exam.statusFormatted,
                             colorBorder: color,
                             colorBackground: color.withOpacity(0.2),

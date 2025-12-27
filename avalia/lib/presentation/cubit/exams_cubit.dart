@@ -8,20 +8,36 @@ import '../../data/models/student_exam_model.dart';
 class ExamsCubit extends Cubit<BaseState> {
   ExamsCubit() : super(InitialState());
 
-  Future<void> getExamsByUserId(String userId) async {
+  Future<void> getStudentByUserID(String userId) async {
     emit(LoadingState());
     try {
-      final response = await Supabase.instance.client
-          .from('provas')
-          .select('*')
-          .eq('user_id', userId)
-          .order('created_at', ascending: false);
+      print('Fetching exams for studentId: $userId');
+      final response = await Supabase.instance.client.rpc(
+        'get_provas_por_user',
+        params: {'p_user_id': userId},
+      );
 
-      final exams = response.map((e) => ExamModel.fromJson(e)).toList();
+      print('Raw response from get_provas_por_user: $response');
 
-      emit(SuccessState<List<ExamModel>>(exams));
+      List<dynamic> data = [];
+
+      if (response is Map && response.containsKey('provas')) {
+        data = response['provas'] as List<dynamic>;
+      } else if (response is List) {
+        data = response;
+      } else if (response is Map) {
+        // Fallback for single item or unexpected structure, though likely not needed if API is consistent
+        data = [response];
+      }
+
+      final exams = data
+          .map((e) => StudentExamModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+
+      print('Parsed exams count: ${exams.length}');
+      emit(SuccessState<List<StudentExamModel>>(exams));
     } catch (e) {
-      print('Erro ao buscar provas: $e');
+      print('Erro ao buscar provas do aluno: $e');
       emit(ErrorState(e.toString()));
     }
   }

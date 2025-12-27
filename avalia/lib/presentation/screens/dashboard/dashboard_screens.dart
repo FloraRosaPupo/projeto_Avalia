@@ -87,47 +87,51 @@ class _DashboardScreenState
                 shadowColor: Colors.white,
                 surfaceTintColor: Colors.white,
                 elevation: 1,
-                leading: IconButton(
-                  icon: const Icon(Icons.logout),
-                  onPressed: () {
-                    Supabase.instance.client.auth.signOut();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()),
-                    );
-                  },
+                leading: Padding(
+                  padding: EdgeInsetsGeometry.directional(
+                    start: 8,
+                    bottom: 8,
+                    top: 8,
+                  ),
+                  child: Container(
+                    height: 40.0,
+                    width: 40.0,
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(122, 223, 64, 251),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.school_outlined,
+                      size: 20,
+                      color: Colors.purple,
+                    ),
+                  ),
                 ),
-                title: Row(
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.logout),
+                    onPressed: () {
+                      Supabase.instance.client.auth.signOut();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                      );
+                    },
+                  ),
+                ],
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      height: 45.0,
-                      width: 45.0,
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(122, 223, 64, 251),
-                        borderRadius: BorderRadius.circular(50.0),
-                      ),
-                      child: const Icon(
-                        Icons.school_outlined,
-                        size: 20,
-                        color: Colors.purple,
+                    Text(
+                      'Olá, ${nome ?? 'Usuário'}.',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(width: 8.0),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Olá, ${nome ?? 'Usuário'}.',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '${email ?? ''}',
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ],
+                    Text(
+                      '${email ?? ''}',
+                      style: const TextStyle(fontSize: 12),
                     ),
                   ],
                 ),
