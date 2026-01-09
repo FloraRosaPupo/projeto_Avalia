@@ -8,7 +8,12 @@ class ModalCreatedStudent extends StatefulWidget {
 }
 
 class _ModalCreatedStudentState extends State<ModalCreatedStudent> {
-  final List<String> _classes = ['Turma A', 'Turma B', 'Turma C', 'Turma de Férias'];
+  final List<String> _classes = [
+    'Turma A',
+    'Turma B',
+    'Turma C',
+    'Turma de Férias',
+  ];
   String? _selectedClass;
 
   @override
@@ -27,34 +32,46 @@ class _ModalCreatedStudentState extends State<ModalCreatedStudent> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('Criar Aluno',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const Text(
+              'Criar Aluno',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
-            const TextField(
+            TextField(
               decoration: InputDecoration(
                 hintText: 'Nome do Aluno',
                 hintStyle: TextStyle(color: Color.fromARGB(99, 158, 158, 158)),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Color.fromARGB(99, 158, 158, 158)),
+                  borderSide: BorderSide(
+                    color: Color.fromARGB(99, 158, 158, 158),
+                  ),
                   borderRadius: BorderRadius.all(Radius.circular(16)),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.purple, width: 2),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).primaryColor,
+                    width: 2,
+                  ),
                   borderRadius: BorderRadius.all(Radius.circular(16)),
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            const TextField(
+            TextField(
               decoration: InputDecoration(
                 hintText: 'Matricula',
                 hintStyle: TextStyle(color: Color.fromARGB(99, 158, 158, 158)),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Color.fromARGB(99, 158, 158, 158)),
+                  borderSide: BorderSide(
+                    color: Color.fromARGB(99, 158, 158, 158),
+                  ),
                   borderRadius: BorderRadius.all(Radius.circular(16)),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.purple, width: 2),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).primaryColor,
+                    width: 2,
+                  ),
                   borderRadius: BorderRadius.all(Radius.circular(16)),
                 ),
               ),
@@ -66,19 +83,26 @@ class _ModalCreatedStudentState extends State<ModalCreatedStudent> {
                 labelStyle: TextStyle(color: Color.fromARGB(99, 158, 158, 158)),
                 hintStyle: TextStyle(color: Color.fromARGB(99, 158, 158, 158)),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Color.fromARGB(99, 158, 158, 158)),
+                  borderSide: BorderSide(
+                    color: Color.fromARGB(99, 158, 158, 158),
+                  ),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.purple, width: 2),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).primaryColor,
+                    width: 2,
+                  ),
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
               value: _selectedClass,
-              items: _classes.map((turma) => DropdownMenuItem(
-                value: turma,
-                child: Text(turma),
-              )).toList(),
+              items: _classes
+                  .map(
+                    (turma) =>
+                        DropdownMenuItem(value: turma, child: Text(turma)),
+                  )
+                  .toList(),
               onChanged: (value) {
                 setState(() {
                   _selectedClass = value;
@@ -88,7 +112,7 @@ class _ModalCreatedStudentState extends State<ModalCreatedStudent> {
             const SizedBox(height: 16),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple,
+                backgroundColor: Theme.of(context).primaryColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -97,7 +121,12 @@ class _ModalCreatedStudentState extends State<ModalCreatedStudent> {
                 // use "picked" aqui para salvar a cor escolhida
                 //Navigator.of(context).pop(picked);
               },
-              child: const Text('Salvar', style: TextStyle(color: Colors.white)),
+              child: Text(
+                'Salvar',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+              ),
             ),
           ],
         ),

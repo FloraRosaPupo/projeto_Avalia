@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
-import 'package:avalia/presentation/cubit/submission_cubit.dart';
-import 'package:avalia/data/models/submission_model.dart';
+import 'package:Avalia/presentation/cubit/submission_cubit.dart';
+import 'package:Avalia/data/models/submission_model.dart';
 
 class SubmissionUploadModal extends StatefulWidget {
   final String provaId;

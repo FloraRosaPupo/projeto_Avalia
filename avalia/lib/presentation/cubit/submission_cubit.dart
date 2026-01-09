@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:avalia/core/state/base_state.dart';
-import 'package:avalia/data/models/submission_model.dart';
+import 'package:Avalia/core/state/base_state.dart';
+import 'package:Avalia/data/models/submission_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SubmissionCubit extends Cubit<BaseState> {

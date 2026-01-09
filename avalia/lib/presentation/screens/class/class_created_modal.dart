@@ -1,5 +1,5 @@
-import 'package:avalia/core/state/base_state.dart';
-import 'package:avalia/presentation/cubit/class_cubit.dart';
+import 'package:Avalia/core/state/base_state.dart';
+import 'package:Avalia/presentation/cubit/class_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -138,7 +138,10 @@ class _ModalCreatedClassState extends State<ModalCreatedClass> {
                         borderRadius: BorderRadius.all(Radius.circular(16)),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.purple, width: 2),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).primaryColor,
+                          width: 2,
+                        ),
                         borderRadius: BorderRadius.all(Radius.circular(16)),
                       ),
                       errorBorder: OutlineInputBorder(
@@ -163,7 +166,7 @@ class _ModalCreatedClassState extends State<ModalCreatedClass> {
                       }
                       return null;
                     },
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Descrição',
                       hintStyle: TextStyle(
                         color: Color.fromARGB(99, 158, 158, 158),
@@ -175,7 +178,10 @@ class _ModalCreatedClassState extends State<ModalCreatedClass> {
                         borderRadius: BorderRadius.all(Radius.circular(16)),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.purple, width: 2),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).primaryColor,
+                          width: 2,
+                        ),
                         borderRadius: BorderRadius.all(Radius.circular(16)),
                       ),
                       errorBorder: OutlineInputBorder(
@@ -222,11 +228,15 @@ class _ModalCreatedClassState extends State<ModalCreatedClass> {
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.of(context).pop(),
-                                child: const Text('CANCELAR'),
+                                child: SizedBox(
+                                  child: Text('CANCELAR'),
+                                ),
                               ),
                               ElevatedButton(
                                 onPressed: () => Navigator.of(context).pop(temp),
-                                child: const Text('Selecionar'),
+                                child: SizedBox(
+                                  child: Text('Selecionar'),
+                                ),
                               ),
                             ],
                           );
@@ -254,7 +264,7 @@ class _ModalCreatedClassState extends State<ModalCreatedClass> {
                       final isLoading = state is LoadingState;
                       return ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.purple,
+                          backgroundColor: Theme.of(context).primaryColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -289,17 +299,21 @@ class _ModalCreatedClassState extends State<ModalCreatedClass> {
                                 }
                               },
                         child: isLoading
-                            ? const SizedBox(
+                            ? SizedBox(
                                 height: 20,
                                 width: 20,
                                 child: CircularProgressIndicator(
-                                  color: Colors.white,
+                                  color: Theme.of(context).primaryColor,
                                   strokeWidth: 2,
                                 ),
                               )
                             : Text(
                                 widget.classId == null ? 'Salvar' : 'Editar',
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
+                                ),
                               ),
                       );
                     },

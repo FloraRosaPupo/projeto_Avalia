@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:avalia/presentation/cubit/exams_cubit.dart';
-import 'package:avalia/presentation/cubit/class_cubit.dart';
-import 'package:avalia/core/state/base_state.dart';
-import 'package:avalia/data/models/class_model.dart';
-import 'package:avalia/data/models/exam_model.dart';
+import 'package:Avalia/presentation/cubit/exams_cubit.dart';
+import 'package:Avalia/presentation/cubit/class_cubit.dart';
+import 'package:Avalia/core/state/base_state.dart';
+import 'package:Avalia/data/models/class_model.dart';
+import 'package:Avalia/data/models/exam_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ModalCreatedExams extends StatefulWidget {
@@ -165,7 +165,7 @@ class _ModalCreatedExamsState extends State<ModalCreatedExams> {
         'nome': _nameController.text,
         'cor': picked.value.toRadixString(16).substring(2),
         'url_prova': gabaritoUrl,
-        'user_id': userId,        
+        'user_id': userId,
         'turmas_id': _selectedClasses.map((c) => c.id).toList(),
       };
 
@@ -245,7 +245,7 @@ class _ModalCreatedExamsState extends State<ModalCreatedExams> {
                     const SizedBox(height: 24),
                     TextField(
                       controller: _nameController,
-                      decoration: const InputDecoration(
+                      decoration:  InputDecoration(
                         hintText: 'Nome da Prova',
                         hintStyle: TextStyle(
                           color: Color.fromARGB(99, 158, 158, 158),
@@ -258,7 +258,7 @@ class _ModalCreatedExamsState extends State<ModalCreatedExams> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: Colors.purple,
+                            color: Theme.of(context).colorScheme.primary,
                             width: 2,
                           ),
                           borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -457,7 +457,7 @@ class _ModalCreatedExamsState extends State<ModalCreatedExams> {
                     const SizedBox(height: 24),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),

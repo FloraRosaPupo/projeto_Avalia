@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:avalia/core/state/base_state.dart';
-import 'package:avalia/data/models/submission_model.dart';
-import 'package:avalia/presentation/cubit/submission_cubit.dart';
-import 'package:avalia/presentation/widgets/submission_upload_modal.dart';
-import 'package:avalia/core/navigation/app_route_observer.dart';
+import 'package:Avalia/core/state/base_state.dart';
+import 'package:Avalia/data/models/submission_model.dart';
+import 'package:Avalia/presentation/cubit/submission_cubit.dart';
+import 'package:Avalia/presentation/widgets/submission_upload_modal.dart';
+import 'package:Avalia/core/navigation/app_route_observer.dart';
 
 class DetailsExamsStudentScreens extends StatefulWidget {
   final String provaId;

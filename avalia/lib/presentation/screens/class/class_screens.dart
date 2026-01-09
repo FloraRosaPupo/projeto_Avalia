@@ -1,10 +1,10 @@
-import 'package:avalia/presentation/screens/class/class_detail_screens.dart';
-import 'package:avalia/presentation/screens/class/class_card_screens.dart';
-import 'package:avalia/presentation/screens/class/class_created_modal.dart';
-import 'package:avalia/presentation/cubit/class_cubit.dart';
-import 'package:avalia/core/state/base_state.dart';
-import 'package:avalia/data/models/class_model.dart';
-import 'package:avalia/core/navigation/app_route_observer.dart';
+import 'package:Avalia/presentation/screens/class/class_detail_screens.dart';
+import 'package:Avalia/presentation/screens/class/class_card_screens.dart';
+import 'package:Avalia/presentation/screens/class/class_created_modal.dart';
+import 'package:Avalia/presentation/cubit/class_cubit.dart';
+import 'package:Avalia/core/state/base_state.dart';
+import 'package:Avalia/data/models/class_model.dart';
+import 'package:Avalia/core/navigation/app_route_observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -71,7 +71,7 @@ class _ClassScreensState extends AutoRefreshRouteAwareState<ClassScreens> {
             ),
             body: _buildBody(context, state),
             floatingActionButton: FloatingActionButton(
-              backgroundColor: Colors.purple,
+              backgroundColor: Theme.of(context).colorScheme.primary,
               foregroundColor: Colors.white,
               onPressed: () {
                 showDialog(

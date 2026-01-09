@@ -1,4 +1,4 @@
-# avalia
+# Avalia
 
 A new Flutter project.
 

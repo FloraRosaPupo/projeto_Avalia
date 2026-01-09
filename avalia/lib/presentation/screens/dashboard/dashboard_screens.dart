@@ -1,13 +1,13 @@
-import 'package:avalia/presentation/screens/class/class_screens.dart';
-import 'package:avalia/presentation/screens/dashboard/dashboard_card_value_screens.dart';
-import 'package:avalia/presentation/screens/exams/exams_screens.dart';
+import 'package:Avalia/presentation/screens/class/class_screens.dart';
+import 'package:Avalia/presentation/screens/dashboard/dashboard_card_value_screens.dart';
+import 'package:Avalia/presentation/screens/exams/exams_screens.dart';
 import 'package:flutter/material.dart';
-import 'package:avalia/presentation/screens/dashboard/dashboard_card_history_screens.dart';
+import 'package:Avalia/presentation/screens/dashboard/dashboard_card_history_screens.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:avalia/presentation/screens/login_screen.dart';
-import 'package:avalia/presentation/cubit/dashboard_cubit.dart';
+import 'package:Avalia/presentation/screens/login_screen.dart';
+import 'package:Avalia/presentation/cubit/dashboard_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:avalia/core/navigation/app_route_observer.dart';
+import 'package:Avalia/core/navigation/app_route_observer.dart';
 import '../../../core/state/base_state.dart';
 import '../../../data/models/dashboard_model.dart';
 
@@ -97,13 +97,15 @@ class _DashboardScreenState
                     height: 40.0,
                     width: 40.0,
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(122, 223, 64, 251),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.6),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.school_outlined,
                       size: 20,
-                      color: Colors.purple,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ),
