@@ -10,6 +10,7 @@ import 'package:Avalia/presentation/screens/student/student_cretead_modal.dart';
 import 'package:Avalia/presentation/screens/class/class_created_modal.dart';
 import 'package:Avalia/core/navigation/app_route_observer.dart';
 import 'package:Avalia/theme.dart';
+import 'package:Avalia/presentation/cubit/student_cubit.dart';
 
 class ClassDetailScreens extends StatefulWidget {
   final int classId;
@@ -145,8 +146,12 @@ class _ClassDetailScreensState
                             onPressed: () {
                               showDialog(
                                 context: context,
-                                builder: (context) =>
-                                    const ModalCreatedStudent(),
+                                builder: (context) => BlocProvider(
+                                  create: (context) => StudentCubit(),
+                                  child: ModalCreatedStudent(
+                                    classId: widget.classId,
+                                  ),
+                                ),
                               );
                             },
                             icon: const Icon(

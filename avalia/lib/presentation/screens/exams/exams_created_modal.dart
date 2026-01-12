@@ -47,6 +47,29 @@ class _ModalCreatedExamsState extends State<ModalCreatedExams> {
         } catch (_) {}
       }
       _existingGabaritoUrl = widget.exam!.urlProva;
+
+      // Inicializar turmas se já tivermos os dados
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _initializeSelectedClasses();
+      });
+    }
+  }
+
+  void _initializeSelectedClasses() {
+    if (widget.exam == null) return;
+
+    final classCubit = context.read<ClassCubit>();
+    final state = classCubit.state;
+
+    if (state is SuccessState<ClassListResponse>) {
+      final allTurmas = state.data.classes;
+      final examTurmasIds = widget.exam!.turmasId;
+      setState(() {
+        _selectedClasses = allTurmas
+            .where((t) => examTurmasIds.contains(t.id))
+            .toList();
+        _classesInitialized = true;
+      });
     }
   }
 
@@ -245,7 +268,7 @@ class _ModalCreatedExamsState extends State<ModalCreatedExams> {
                     const SizedBox(height: 24),
                     TextField(
                       controller: _nameController,
-                      decoration:  InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Nome da Prova',
                         hintStyle: TextStyle(
                           color: Color.fromARGB(99, 158, 158, 158),
@@ -441,7 +464,14 @@ class _ModalCreatedExamsState extends State<ModalCreatedExams> {
                                   ),
                             ),
                           ),
-                          // Opção para remover a imagem existente se desejar (opcional)
+                          IconButton(
+                            icon: const Icon(Icons.close, color: Colors.red),
+                            onPressed: () {
+                              setState(() {
+                                _existingGabaritoUrl = null;
+                              });
+                            },
+                          ),
                         ],
                       ),
 
