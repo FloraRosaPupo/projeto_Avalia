@@ -1,11 +1,13 @@
 // submission_upload_modal.dart
 import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:Avalia/presentation/cubit/submission_cubit.dart';
 import 'package:Avalia/data/models/submission_model.dart';
+import 'package:path/path.dart' as path;
 
 class SubmissionUploadModal extends StatefulWidget {
   final String provaId;
@@ -27,6 +29,11 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
   final ImagePicker _picker = ImagePicker();
   File? _selectedImage;
 
+  // Estados de validação
+  String? _imageDimensionWarning;
+  int? _imageWidth;
+  int? _imageHeight;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -44,10 +51,22 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
               ),
             );
           } else if (state is SubmissionErrorState) {
+            print('ERROR: SubmissionErrorState - ${state.message}');
+            print('ERROR: Code: ${state.code}');
+
+            // Trata erros específicos de type cast
+            String errorMessage = state.message;
+            if (errorMessage.contains('type') &&
+                errorMessage.contains('is not a subtype')) {
+              errorMessage =
+                  'Erro ao processar dados da submissão. Por favor, tente novamente.';
+            }
+
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('❌ ${state.message}'),
+                content: Text('❌ $errorMessage'),
                 backgroundColor: Colors.red,
+                duration: const Duration(seconds: 5),
                 action: SnackBarAction(
                   label: 'Tentar novamente',
                   textColor: Colors.white,
@@ -83,6 +102,9 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
   // UI helpers
   // ---------------------------------------------------------------------
   Widget _buildImageSourceSelection(BuildContext context) {
+    final isReplacing = widget.existingSubmission != null;
+    final attemptNumber = widget.existingSubmission?.attemptNumber ?? 0;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -96,55 +118,129 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Text(
-                'Enviar Resposta',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                isReplacing ? 'Substituir Submissão' : 'Enviar Resposta',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               // Close button handled by parent modal
             ],
           ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue.shade200),
-            ),
-            child: Row(
-              children: const [
-                Icon(Icons.info_outline, color: Colors.blue, size: 20),
-                SizedBox(width: 12),
-                Expanded(
+          if (isReplacing) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Text(
-                    'Certifique-se de marcar claramente as bolhas (A–E)',
-                    style: TextStyle(fontSize: 14, color: Colors.blue),
+                    'Tentativa ${attemptNumber + 1}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
+          ],
+          const SizedBox(height: 16),
+          if (isReplacing)
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.secondaryContainer,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.refresh,
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Esta nova imagem substituirá a submissão anterior e será recorrigida pela IA',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSecondaryContainer,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: Theme.of(context).primaryColor,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Certifique-se de marcar claramente as bolhas (A–E)',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.orange.shade50,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.orange.shade200),
+              border: Border.all(color: Theme.of(context).colorScheme.outline),
             ),
             child: Row(
-              children: const [
+              children: [
                 Icon(
-                  Icons.warning_amber_outlined,
-                  color: Colors.orange,
+                  Icons.check_circle_outline,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   size: 20,
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Tamanho máximo: 50MB por imagem',
-                    style: TextStyle(fontSize: 14, color: Colors.orange),
+                    'Tamanho máximo: 50MB | Formatos: JPG, PNG',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ],
@@ -182,27 +278,39 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade300),
+          border: Border.all(color: Theme.of(context).colorScheme.outline),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.blue.shade50,
+                color: Theme.of(context).colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: Colors.blue, size: 24),
+              child: Icon(
+                icon,
+                color: Theme.of(context).primaryColor,
+                size: 24,
+              ),
             ),
             const SizedBox(width: 16),
             Text(
               label,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
             const Spacer(),
-            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ],
         ),
       ),
@@ -210,6 +318,9 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
   }
 
   Widget _buildImagePreview(BuildContext context) {
+    final isReplacing = widget.existingSubmission != null;
+    final attemptNumber = widget.existingSubmission?.attemptNumber ?? 0;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -223,26 +334,126 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Text(
-                'Preview da Imagem',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                isReplacing ? 'Preview da Substituição' : 'Preview da Resposta',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              // Close button handled by parent modal
+              if (isReplacing)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    'Tentativa ${attemptNumber + 1}',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
+                  ),
+                ),
             ],
           ),
           const SizedBox(height: 16),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.file(_selectedImage!, height: 300, fit: BoxFit.cover),
+          // Container com border destacado
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Theme.of(context).primaryColor,
+                width: 2,
+              ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.file(
+                _selectedImage!,
+                height: 300,
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
+          const SizedBox(height: 12),
+          // Informações da imagem
+          if (_imageWidth != null && _imageHeight != null)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Dimensões: ${_imageWidth}x${_imageHeight}px',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          // Warning de qualidade
+          if (_imageDimensionWarning != null)
+            Container(
+              margin: const EdgeInsets.only(top: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.errorContainer,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.warning_amber_outlined,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _imageDimensionWarning!,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onErrorContainer,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           const SizedBox(height: 24),
           Row(
             children: [
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    setState(() => _selectedImage = null);
+                    setState(() {
+                      _selectedImage = null;
+                      _imageDimensionWarning = null;
+                      _imageWidth = null;
+                      _imageHeight = null;
+                    });
                   },
                   icon: const Icon(Icons.refresh),
                   label: const Text('Trocar'),
@@ -251,6 +462,12 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                    foregroundColor: isReplacing
+                        ? Theme.of(context).colorScheme.secondary
+                        : Theme.of(context).primaryColor,
                   ),
                 ),
               ),
@@ -259,11 +476,13 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
                 flex: 2,
                 child: ElevatedButton.icon(
                   onPressed: () => _uploadImage(context),
-                  icon: const Icon(Icons.cloud_upload),
-                  label: const Text('Enviar'),
+                  icon: Icon(isReplacing ? Icons.refresh : Icons.cloud_upload),
+                  label: Text(isReplacing ? 'Substituir' : 'Enviar'),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.blue,
+                    backgroundColor: isReplacing
+                        ? Theme.of(context).colorScheme.secondary
+                        : Theme.of(context).primaryColor,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -298,8 +517,12 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
             value: percent / 100,
             minHeight: 8,
             borderRadius: BorderRadius.circular(4),
-            backgroundColor: Colors.grey.shade200,
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+            backgroundColor: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              Theme.of(context).primaryColor,
+            ),
           ),
           const SizedBox(height: 12),
           Text(
@@ -431,6 +654,81 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
   }
 
   // ---------------------------------------------------------------------
+  // Validation helpers
+  // ---------------------------------------------------------------------
+
+  /// Valida formato da imagem
+  bool _validateImageFormat(File imageFile) {
+    // Validação flexível: ImagePicker já faz conversão de formatos
+    // Imagens da galeria podem não ter extensão no caminho
+    String extension = path.extension(imageFile.path).toLowerCase();
+    final hasValidExtension = [
+      '.jpg',
+      '.jpeg',
+      '.png',
+      '.heic',
+      '.heif',
+      '.webp',
+    ].contains(extension);
+
+    // Se não tem extensão conhecida, aceita mesmo assim
+    // O ImagePicker já faz conversão e o servidor fará validação final
+    if (!hasValidExtension) {
+      print(
+        'WARNING: Arquivo sem extensão conhecida ($extension), mas aceitando (ImagePicker faz conversão)',
+      );
+    }
+
+    return true; // Sempre aceita, validação final será no servidor
+  }
+
+  /// Valida dimensões da imagem
+  Future<bool> _validateImageDimensions(File imageFile) async {
+    try {
+      final bytes = await imageFile.readAsBytes();
+      final ui.Image image = await decodeImageFromList(bytes);
+
+      setState(() {
+        _imageWidth = image.width;
+        _imageHeight = image.height;
+      });
+
+      // Dimensões mínimas: 400x300px
+      const int minWidth = 400;
+      const int minHeight = 300;
+
+      if (image.width < minWidth || image.height < minHeight) {
+        setState(() {
+          _imageDimensionWarning =
+              'Imagem muito pequena (${image.width}x${image.height}px). '
+              'Recomendado: mínimo ${minWidth}x${minHeight}px para melhor qualidade.';
+        });
+        return false;
+      }
+
+      // Warning para imagens com baixa resolução
+      if (image.width < 800 || image.height < 600) {
+        setState(() {
+          _imageDimensionWarning =
+              'Imagem com resolução baixa (${image.width}x${image.height}px). '
+              'Para melhor resultado, use imagens com resolução superior.';
+        });
+      } else {
+        setState(() {
+          _imageDimensionWarning = null;
+        });
+      }
+
+      return true;
+    } catch (e) {
+      setState(() {
+        _imageDimensionWarning = 'Erro ao validar dimensões da imagem';
+      });
+      return false;
+    }
+  }
+
+  // ---------------------------------------------------------------------
   // Interaction helpers
   // ---------------------------------------------------------------------
   Future<void> _pickImage(BuildContext context, ImageSource source) async {
@@ -465,6 +763,12 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
         }
         return;
       }
+
+      // Validar formato (validação flexível - ImagePicker já faz conversão)
+      _validateImageFormat(file);
+
+      // Validar dimensões
+      await _validateImageDimensions(file);
 
       setState(() {
         _selectedImage = file;

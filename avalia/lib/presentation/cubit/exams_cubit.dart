@@ -64,6 +64,37 @@ class ExamsCubit extends Cubit<BaseState> {
     }
   }
 
+  /// Remove um gabarito do Storage do Supabase
+  /// Extrai o nome do arquivo da URL e remove do bucket 'gabaritos'
+  Future<void> deleteGabarito(String gabaritoUrl) async {
+    try {
+      // Extrair nome do arquivo da URL
+      // URL formato: https://.../storage/v1/object/public/gabaritos/FILENAME
+      final uri = Uri.parse(gabaritoUrl);
+      final pathSegments = uri.pathSegments;
+
+      // Encontrar o índice de 'gabaritos' e pegar o próximo segmento
+      final gabaritosIndex = pathSegments.indexOf('gabaritos');
+      if (gabaritosIndex == -1 || gabaritosIndex >= pathSegments.length - 1) {
+        throw Exception('URL inválida: não foi possível extrair nome do arquivo');
+      }
+
+      final fileName = pathSegments[gabaritosIndex + 1];
+
+      print('Deletando gabarito: $fileName');
+
+      await Supabase.instance.client.storage
+          .from('gabaritos')
+          .remove([fileName]);
+
+      print('Gabarito deletado com sucesso: $fileName');
+    } catch (e) {
+      print('Erro ao deletar gabarito: $e');
+      // Não lançar exceção para não bloquear o fluxo se o arquivo já foi deletado
+      // ou não existe mais
+    }
+  }
+
   Future<void> createExam(Map<String, dynamic> examData) async {
     emit(LoadingState());
     try {
@@ -151,6 +182,45 @@ class ExamsCubit extends Cubit<BaseState> {
     } catch (e) {
       print('Erro ao buscar provas do aluno: $e');
       emit(ErrorState(e.toString()));
+    }
+  }
+
+  /// Busca uma prova completa pelo ID, incluindo turmas vinculadas
+  Future<void> getExamById(int examId) async {
+    emit(LoadingState());
+    try {
+      print('🔍 Buscando prova completa pelo ID: $examId');
+      
+      final response = await Supabase.instance.client
+          .from('provas')
+          .select()
+          .eq('id', examId)
+          .maybeSingle();
+
+      if (response == null) {
+        print('❌ Prova não encontrada com ID: $examId');
+        emit(ErrorState('Prova não encontrada'));
+        return;
+      }
+
+      print('✅ Dados da prova recebidos do banco:');
+      print('   - ID: ${response['id']}');
+      print('   - Nome: ${response['nome']}');
+      print('   - URL Prova: ${response['url_prova']}');
+      print('   - Turmas ID (raw): ${response['turmas_id']}');
+      print('   - Tipo de turmas_id: ${response['turmas_id'].runtimeType}');
+
+      final exam = ExamModel.fromJson(response);
+      
+      print('✅ ExamModel criado:');
+      print('   - Turmas ID: ${exam.turmasId}');
+      print('   - Quantidade de turmas: ${exam.turmasId.length}');
+
+      emit(SuccessState<ExamModel>(exam));
+    } catch (e, stackTrace) {
+      print('❌ Erro ao buscar prova pelo ID: $e');
+      print('Stack trace: $stackTrace');
+      emit(ErrorState('Erro ao buscar prova: $e'));
     }
   }
 }

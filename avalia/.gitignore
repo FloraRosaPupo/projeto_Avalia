@@ -1,5 +1,7 @@
 # Miscellaneous
 *.class
+*.gradle
+
 *.log
 *.pyc
 *.swp
@@ -43,3 +45,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Claude AI related
+.claude/
+
+# Claude AI related
+.claude/

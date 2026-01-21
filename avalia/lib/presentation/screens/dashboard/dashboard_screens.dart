@@ -57,6 +57,11 @@ class _DashboardScreenState
         _cubit = cubit;
         if (userId != null) {
           cubit.getRecentActivities(userId: userId!, limit: 10);
+        } else {
+          // Se não há userId, emite erro
+          cubit.emit(
+            ErrorState('Usuário não autenticado. Faça login novamente.'),
+          );
         }
         return cubit;
       },
@@ -99,7 +104,7 @@ class _DashboardScreenState
                     decoration: BoxDecoration(
                       color: Theme.of(
                         context,
-                      ).colorScheme.primary.withOpacity(0.6),
+                      ).colorScheme.primary.withValues(alpha: 0.6),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -143,16 +148,11 @@ class _DashboardScreenState
           }
 
           // ESTADO INICIAL / OUTROS
-          return ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const DashboardScreen(),
-                ),
-              );
-            },
-            child: const Text('Carregando...'),
+          return const Scaffold(
+            backgroundColor: Colors.white,
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
           );
         },
       ),
@@ -186,12 +186,20 @@ class _DashboardScreenState
                   Expanded(
                     child: InkWell(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ClassScreens(),
-                          ),
-                        );
+                        try {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ClassScreens(),
+                            ),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Erro ao navegar: $e'),
+                            ),
+                          );
+                        }
                       },
                       child: CardDashbordScreen(
                         icon: Icons.group_outlined,
@@ -212,12 +220,20 @@ class _DashboardScreenState
                   Expanded(
                     child: InkWell(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ExamsScreens(),
-                          ),
-                        );
+                        try {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ExamsScreens(),
+                            ),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Erro ao navegar: $e'),
+                            ),
+                          );
+                        }
                       },
                       child: CardDashbordScreen(
                         icon: Icons.article_outlined,
@@ -254,7 +270,7 @@ class _DashboardScreenState
                         );
                         return HistoryScreens(
                           icon: style.icon,
-                          colorBackground: style.color.withOpacity(0.2),
+                          colorBackground: style.color.withValues(alpha: 0.2),
                           colorIcon: style.color,
                           title: act.title ?? 'Sem título',
                           subtitle: act.resource,

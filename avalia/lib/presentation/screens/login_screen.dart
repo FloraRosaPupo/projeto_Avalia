@@ -6,26 +6,49 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/state/base_state.dart';
 
 class LoginScreen extends StatefulWidget {
-  LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  String email = '';
-  String password = '';
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-  bool isObscured = false;
-  bool loadingController = false;
+  bool isObscured = true;
   final FocusNode emailFocus = FocusNode();
   final FocusNode passwordFocus = FocusNode();
 
   @override
   void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
     emailFocus.dispose();
     passwordFocus.dispose();
     super.dispose();
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Email é obrigatório';
+    }
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(value)) {
+      return 'Digite um email válido';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Senha é obrigatória';
+    }
+    if (value.length < 6) {
+      return 'Senha deve ter no mínimo 6 caracteres';
+    }
+    return null;
   }
 
   @override
@@ -35,28 +58,16 @@ class _LoginScreenState extends State<LoginScreen> {
       child: BlocListener<AuthCubit, BaseState>(
         listener: (context, state) {
           if (state is SuccessState) {
-            loadingController = false;
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => DashboardScreen()),
+              MaterialPageRoute(builder: (context) => const DashboardScreen()),
             );
           } else if (state is ErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(
-                  'Senha ou email incorreto, valide os campos e tente novamente.',
-                ),
+                content: Text(state.message),
               ),
             );
-            loadingController = false;
-          } else if (state is LoadingState) {
-            //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Carregando...')));
-            loadingController = true;
-          } else if (state is InitialState) {
-            loadingController = false;
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text('Inicializando...')));
           }
         },
         child: Scaffold(
@@ -65,171 +76,200 @@ class _LoginScreenState extends State<LoginScreen> {
           body: SafeArea(
             child: SingleChildScrollView(
               child: Container(
-                padding: EdgeInsets.all(32.0),
+                padding: const EdgeInsets.all(32.0),
                 width: double.infinity,
-                height: MediaQuery.of(context).size.height * 0.9,
-
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                      height: 90.0,
-                      width: 90.0,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100.0),
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      child: Icon(
-                        Icons.school_outlined,
-                        size: 50.0,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                    ),
-                    SizedBox(height: 16.0),
-                    Text(
-                      'Avalia',
-                      style: TextStyle(
-                        fontSize: 30.0,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                    SizedBox(height: 8.0),
-                    Text(
-                      'Sistema inteligente para correção de provas fechadas!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    SizedBox(height: 8.0),
-
-                    TextField(
-                      focusNode: emailFocus,
-                      decoration: InputDecoration(
-                        hintText: 'Email',
-                        hintStyle: TextStyle(
-                          color: Color.fromARGB(99, 158, 158, 158),
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height * 0.9,
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        height: 90.0,
+                        width: 90.0,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100.0),
+                          color: Theme.of(context).primaryColor,
                         ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(
+                        child: Icon(
+                          Icons.school_outlined,
+                          size: 50.0,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      Text(
+                        'Avalia',
+                        style: TextStyle(
+                          fontSize: 30.0,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 8.0),
+                      const Text(
+                        'Sistema inteligente para correção de provas fechadas!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 8.0),
+
+                      TextFormField(
+                        controller: _emailController,
+                        focusNode: emailFocus,
+                        validator: _validateEmail,
+                        decoration: InputDecoration(
+                          hintText: 'Email',
+                          hintStyle: TextStyle(
                             color: Color.fromARGB(99, 158, 158, 158),
                           ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).primaryColor,
-                            width: 2.0,
-                          ),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      keyboardType: TextInputType.emailAddress,
-                      onChanged: (value) {
-                        email = value.trim();
-                      },
-                    ),
-                    SizedBox(height: 8.0),
-                    TextField(
-                      focusNode: passwordFocus,
-                      obscureText: !isObscured,
-
-                      decoration: InputDecoration(
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            isObscured
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              isObscured = !isObscured;
-                            });
-                          },
-                        ),
-                        hintText: 'Senha',
-                        hintStyle: TextStyle(
-                          color: Color.fromARGB(99, 158, 158, 158),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(99, 158, 158, 158),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).primaryColor,
-                            width: 2.0,
-                          ),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      keyboardType: TextInputType.visiblePassword,
-                      onChanged: (value) {
-                        password = value.trim();
-                      },
-                    ),
-                    SizedBox(height: 8.0),
-
-                    BlocBuilder<AuthCubit, BaseState>(
-                      builder: (context, state) {
-                        final isLoading = state is LoadingState;
-                        return Container(
-                          height: 45,
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor,
-                              shadowColor: Theme.of(context).primaryColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(100.0),
-                              ),
-                            ),
-                            onPressed:
-                                isLoading || email.isEmpty || password.isEmpty
-                                ? () {}
-                                : () {
-                                    context.read<AuthCubit>().login(
-                                      email: email,
-                                      password: password,
-                                    );
-                                  },
-                            child: Text(
-                              loadingController ? 'Carregando...' : 'Entrar',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                              ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                            borderSide: BorderSide(
+                              color: Color.fromARGB(99, 158, 158, 158),
                             ),
                           ),
-                        );
-                      },
-                    ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).primaryColor,
+                              width: 2.0,
+                            ),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                            borderSide: BorderSide(
+                              color: Colors.red,
+                            ),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                            borderSide: BorderSide(
+                              color: Colors.red,
+                              width: 2.0,
+                            ),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                      const SizedBox(height: 8.0),
+                      TextFormField(
+                        controller: _passwordController,
+                        focusNode: passwordFocus,
+                        validator: _validatePassword,
+                        obscureText: isObscured,
+                        decoration: InputDecoration(
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              isObscured
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                isObscured = !isObscured;
+                              });
+                            },
+                          ),
+                          hintText: 'Senha',
+                          hintStyle: TextStyle(
+                            color: Color.fromARGB(99, 158, 158, 158),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                            borderSide: BorderSide(
+                              color: const Color.fromARGB(99, 158, 158, 158),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).primaryColor,
+                              width: 2.0,
+                            ),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                            borderSide: BorderSide(
+                              color: Colors.red,
+                            ),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                            borderSide: BorderSide(
+                              color: Colors.red,
+                              width: 2.0,
+                            ),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        keyboardType: TextInputType.visiblePassword,
+                      ),
+                      const SizedBox(height: 8.0),
 
-                    SizedBox(height: 8.0),
-                    Center(
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => RegisterScreen(),
+                      BlocBuilder<AuthCubit, BaseState>(
+                        builder: (context, state) {
+                          final isLoading = state is LoadingState;
+
+                          return Container(
+                            height: 45,
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).primaryColor,
+                                shadowColor: Theme.of(context).primaryColor,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(100.0),
+                                ),
+                              ),
+                              onPressed: isLoading
+                                  ? null
+                                  : () {
+                                      if (_formKey.currentState!.validate()) {
+                                        context.read<AuthCubit>().login(
+                                          email: _emailController.text.trim(),
+                                          password: _passwordController.text.trim(),
+                                        );
+                                      }
+                                    },
+                              child: Text(
+                                isLoading ? 'Carregando...' : 'Entrar',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onPrimary,
+                                ),
+                              ),
                             ),
                           );
                         },
-                        child: Text('Não possui acesso? Crie uma conta.'),
                       ),
-                    ),
-                  ],
+
+                      const SizedBox(height: 8.0),
+                      Center(
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const RegisterScreen(),
+                              ),
+                            );
+                          },
+                          child: const Text('Não possui acesso? Crie uma conta.'),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

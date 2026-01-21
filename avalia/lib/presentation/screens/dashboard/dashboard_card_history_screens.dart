@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
+
 class HistoryScreens extends StatelessWidget {
-  const HistoryScreens({Key? key, required this.icon, required this.colorBackground, required this.colorIcon, required this.title, required this.subtitle, required this.datetime}) : super(key: key);  
+  const HistoryScreens({
+    Key? key,
+    required this.icon,
+    required this.colorBackground,
+    required this.colorIcon,
+    required this.title,
+    required this.subtitle,
+    required this.datetime,
+  }) : super(key: key);
 
   final IconData icon;
   final String title;
@@ -13,20 +22,56 @@ class HistoryScreens extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      elevation:0.5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      elevation: 0.5,
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10.0, horizontal:8.0),
+        padding: const EdgeInsets.symmetric(
+          vertical: 10.0,
+          horizontal: 8.0,
+        ),
         child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Container(height: 30, width: 30,decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), color: colorBackground), child: Icon(icon, color: colorIcon, size: 15,),),
-          SizedBox(width: 16.0),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: TextStyle(fontWeight: FontWeight.bold,),), Text(subtitle, style: TextStyle(fontSize: 12),)],),),
-          Text(formatDateTime(datetime), style: TextStyle(fontSize: 12),),
-        ]
-      )
-      )
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Container(
+              height: 30,
+              width: 30,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                color: colorBackground,
+              ),
+              child: Icon(
+                icon,
+                color: colorIcon,
+                size: 15,
+              ),
+            ),
+            const SizedBox(width: 16.0),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+            Text(
+              formatDateTime(datetime),
+              style: const TextStyle(fontSize: 12),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

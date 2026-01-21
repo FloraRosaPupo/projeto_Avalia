@@ -78,6 +78,9 @@ class _ExamsScreensState extends AutoRefreshRouteAwareState<ExamsScreens> {
       backgroundColor: Colors.white,
       context: context,
       isScrollControlled: true, // Importante para modais com input
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.9,
+      ),
       builder: (BuildContext context) {
         return ModalCreatedExams(exam: examModal);
       },

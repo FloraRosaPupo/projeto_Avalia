@@ -12,7 +12,6 @@ class SubmissionModel {
   final List<QuestionDetail>? detalhamento;
   final List<SubmissionIssue>? issues;
   final double? confidence;
-  final DateTime? uploadedAt;
   final DateTime? finishedAt;
   final int attemptNumber;
 
@@ -28,7 +27,6 @@ class SubmissionModel {
     this.detalhamento,
     this.issues,
     this.confidence,
-    this.uploadedAt,
     this.finishedAt,
     this.attemptNumber = 1,
   });
@@ -53,38 +51,105 @@ class SubmissionModel {
   }
 
   factory SubmissionModel.fromJson(Map<String, dynamic> json) {
-    return SubmissionModel(
-      id: json['id']?.toString(),
-      provaId: json['prova_id'].toString(),
-      alunoId: json['aluno_id'].toString(),
-      imageUrl: json['image_url'] as String?,
-      status: SubmissionStatus.fromString(
-        json['status'] as String? ?? 'pending',
-      ),
-      nota: json['nota'] != null ? (json['nota'] as num).toDouble() : null,
-      acertos: json['acertos'] as int?,
-      totalQuestoes: json['total_questoes'] as int?,
-      detalhamento: json['detalhamento'] != null
-          ? (json['detalhamento'] as List)
-                .map((e) => QuestionDetail.fromJson(e as Map<String, dynamic>))
-                .toList()
-          : _parseRespostasToDetalhamento(json['respostas']),
-      issues: json['issues'] != null
-          ? (json['issues'] as List)
-                .map((e) => SubmissionIssue.fromJson(e as Map<String, dynamic>))
-                .toList()
-          : null,
-      confidence: json['confidence'] != null
-          ? (json['confidence'] as num).toDouble()
-          : null,
-      uploadedAt: json['uploaded_at'] != null
-          ? DateTime.parse(json['uploaded_at'] as String)
-          : null,
-      finishedAt: json['finished_at'] != null
-          ? DateTime.parse(json['finished_at'] as String)
-          : null,
-      attemptNumber: json['attempt_number'] as int? ?? 1,
-    );
+    try {
+      // Função auxiliar para converter para String de forma segura
+      String? _safeString(dynamic value) {
+        if (value == null) return null;
+        if (value is String) return value;
+        return value.toString();
+      }
+
+      // Função auxiliar para converter para int de forma segura
+      int? _safeInt(dynamic value) {
+        if (value == null) return null;
+        if (value is int) return value;
+        if (value is num) return value.toInt();
+        if (value is String) return int.tryParse(value);
+        return null;
+      }
+
+      // Função auxiliar para converter DateTime de forma segura
+      DateTime? _safeDateTime(dynamic value) {
+        if (value == null) return null;
+        if (value is DateTime) return value;
+        if (value is String) {
+          try {
+            return DateTime.parse(value);
+          } catch (e) {
+            print('ERROR: Erro ao fazer parse de data: $value - $e');
+            return null;
+          }
+        }
+        return null;
+      }
+
+      return SubmissionModel(
+        id: _safeString(json['id']),
+        provaId: _safeString(json['prova_id']) ?? '',
+        alunoId: _safeString(json['aluno_id']) ?? '',
+        imageUrl: _safeString(json['image_url']),
+        status: SubmissionStatus.fromString(
+          _safeString(json['status']) ?? 'pending',
+        ),
+        nota: json['nota'] != null ? (json['nota'] as num).toDouble() : null,
+        acertos: _safeInt(json['acertos']),
+        totalQuestoes: _safeInt(json['total_questoes']),
+        detalhamento: json['detalhamento'] != null
+            ? (json['detalhamento'] is List
+                  ? (json['detalhamento'] as List)
+                        .map((e) {
+                          try {
+                            if (e is Map<String, dynamic>) {
+                              return QuestionDetail.fromJson(e);
+                            } else if (e is Map) {
+                              return QuestionDetail.fromJson(
+                                Map<String, dynamic>.from(e),
+                              );
+                            }
+                            return null;
+                          } catch (e) {
+                            print(
+                              'ERROR: Erro ao fazer parse de detalhamento: $e',
+                            );
+                            return null;
+                          }
+                        })
+                        .whereType<QuestionDetail>()
+                        .toList()
+                  : null)
+            : _parseRespostasToDetalhamento(json['respostas']),
+        issues: json['issues'] != null && json['issues'] is List
+            ? (json['issues'] as List)
+                  .map((e) {
+                    try {
+                      if (e is Map<String, dynamic>) {
+                        return SubmissionIssue.fromJson(e);
+                      } else if (e is Map) {
+                        return SubmissionIssue.fromJson(
+                          Map<String, dynamic>.from(e),
+                        );
+                      }
+                      return null;
+                    } catch (e) {
+                      print('ERROR: Erro ao fazer parse de issue: $e');
+                      return null;
+                    }
+                  })
+                  .whereType<SubmissionIssue>()
+                  .toList()
+            : null,
+        confidence: json['confidence'] != null
+            ? (json['confidence'] as num).toDouble()
+            : null,
+        finishedAt: _safeDateTime(json['finished_at']),
+        attemptNumber: _safeInt(json['attempt_number']) ?? 1,
+      );
+    } catch (e, stackTrace) {
+      print('ERROR: Erro ao fazer parse de SubmissionModel: $e');
+      print('ERROR: StackTrace: $stackTrace');
+      print('ERROR: JSON recebido: $json');
+      rethrow;
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -97,10 +162,8 @@ class SubmissionModel {
       'nota': nota,
       'acertos': acertos,
       'total_questoes': totalQuestoes,
-      'detalhamento': detalhamento?.map((e) => e.toJson()).toList(),
       'issues': issues?.map((e) => e.toJson()).toList(),
       'confidence': confidence,
-      'uploaded_at': uploadedAt?.toIso8601String(),
       'finished_at': finishedAt?.toIso8601String(),
       'attempt_number': attemptNumber,
     };
@@ -118,7 +181,6 @@ class SubmissionModel {
     List<QuestionDetail>? detalhamento,
     List<SubmissionIssue>? issues,
     double? confidence,
-    DateTime? uploadedAt,
     DateTime? finishedAt,
     int? attemptNumber,
   }) {
@@ -134,7 +196,6 @@ class SubmissionModel {
       detalhamento: detalhamento ?? this.detalhamento,
       issues: issues ?? this.issues,
       confidence: confidence ?? this.confidence,
-      uploadedAt: uploadedAt ?? this.uploadedAt,
       finishedAt: finishedAt ?? this.finishedAt,
       attemptNumber: attemptNumber ?? this.attemptNumber,
     );
@@ -196,15 +257,47 @@ class QuestionDetail {
   });
 
   factory QuestionDetail.fromJson(Map<String, dynamic> json) {
-    return QuestionDetail(
-      questionNumber: json['question_number'] as int,
-      studentAnswer: json['student_answer'] as String?,
-      officialAnswer: json['official_answer'] as String,
-      isCorrect: json['is_correct'] as bool,
-      confidence: json['confidence'] != null
-          ? (json['confidence'] as num).toDouble()
-          : null,
-    );
+    try {
+      // Função auxiliar para converter para int de forma segura
+      int _safeInt(dynamic value) {
+        if (value is int) return value;
+        if (value is num) return value.toInt();
+        if (value is String) return int.tryParse(value) ?? 0;
+        return 0;
+      }
+
+      // Função auxiliar para converter para String de forma segura
+      String? _safeString(dynamic value) {
+        if (value == null) return null;
+        if (value is String) return value.isEmpty ? null : value;
+        return value.toString();
+      }
+
+      // Função auxiliar para converter para bool de forma segura
+      bool _safeBool(dynamic value) {
+        if (value is bool) return value;
+        if (value is String) {
+          return value.toLowerCase() == 'true' || value == '1';
+        }
+        if (value is num) return value != 0;
+        return false;
+      }
+
+      return QuestionDetail(
+        questionNumber: _safeInt(json['question_number']),
+        studentAnswer: _safeString(json['student_answer']),
+        officialAnswer: _safeString(json['official_answer']) ?? '',
+        isCorrect: _safeBool(json['is_correct']),
+        confidence: json['confidence'] != null
+            ? (json['confidence'] as num).toDouble()
+            : null,
+      );
+    } catch (e, stackTrace) {
+      print('ERROR: Erro ao fazer parse de QuestionDetail: $e');
+      print('ERROR: StackTrace: $stackTrace');
+      print('ERROR: JSON recebido: $json');
+      rethrow;
+    }
   }
 
   factory QuestionDetail.fromRespostasJson(Map<String, dynamic> json) {
@@ -242,14 +335,43 @@ class SubmissionIssue {
   });
 
   factory SubmissionIssue.fromJson(Map<String, dynamic> json) {
-    return SubmissionIssue(
-      type: json['type'] as String,
-      message: json['message'] as String,
-      severity: json['severity'] as String,
-      affectedQuestions: json['affected_questions'] != null
-          ? List<int>.from(json['affected_questions'] as List)
-          : null,
-    );
+    try {
+      // Função auxiliar para converter para String de forma segura
+      String _safeString(dynamic value, String defaultValue) {
+        if (value == null) return defaultValue;
+        if (value is String) return value;
+        return value.toString();
+      }
+
+      // Função auxiliar para converter List<int> de forma segura
+      List<int>? _safeIntList(dynamic value) {
+        if (value == null) return null;
+        if (value is List) {
+          return value
+              .map((e) {
+                if (e is int) return e;
+                if (e is num) return e.toInt();
+                if (e is String) return int.tryParse(e);
+                return null;
+              })
+              .whereType<int>()
+              .toList();
+        }
+        return null;
+      }
+
+      return SubmissionIssue(
+        type: _safeString(json['type'], 'unknown'),
+        message: _safeString(json['message'], ''),
+        severity: _safeString(json['severity'], 'warning'),
+        affectedQuestions: _safeIntList(json['affected_questions']),
+      );
+    } catch (e, stackTrace) {
+      print('ERROR: Erro ao fazer parse de SubmissionIssue: $e');
+      print('ERROR: StackTrace: $stackTrace');
+      print('ERROR: JSON recebido: $json');
+      rethrow;
+    }
   }
 
   Map<String, dynamic> toJson() {

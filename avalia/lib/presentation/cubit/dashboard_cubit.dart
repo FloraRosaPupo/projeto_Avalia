@@ -34,7 +34,6 @@ class DashboardCubit extends Cubit<BaseState> {
       );
       emit(SuccessState<DashboardResponse>(dashboardData));
     } catch (e) {
-      print('Erro no DashboardCubit: $e');
       emit(ErrorState(e.toString()));
     }
   }

@@ -4,25 +4,32 @@
 import 'package:bloc/bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/state/base_state.dart';
+import '../../core/services/auth_service.dart';
 
 class AuthCubit extends Cubit<BaseState> {
-  AuthCubit() : super(InitialState());
+  final IAuthService _authService;
+
+  AuthCubit({IAuthService? authService})
+      : _authService = authService ?? SupabaseAuthService(),
+        super(InitialState());
 
   /// Faz login com email e senha.
   Future<void> login({required String email, required String password}) async {
     emit(LoadingState());
     try {
-      final response = await Supabase.instance.client.auth.signInWithPassword(
+      final response = await _authService.signInWithPassword(
         email: email,
         password: password,
       );
-      if (response.session != null) {
-        emit(SuccessState<void>(null)); // sucesso sem payload específico
+      if (response.session != null && response.user != null) {
+        emit(SuccessState<User>(response.user!));
       } else {
-        emit(ErrorState('Falha ao fazer login.'));
+        emit(const ErrorState('Falha ao fazer login. Sessão não foi criada.'));
       }
+    } on AuthException catch (e) {
+      emit(ErrorState(_translateAuthError(e.message)));
     } catch (e) {
-      emit(ErrorState(e.toString()));
+      emit(const ErrorState('Erro de conexão. Verifique sua internet.'));
     }
   }
 
@@ -34,21 +41,79 @@ class AuthCubit extends Cubit<BaseState> {
   }) async {
     emit(LoadingState());
     try {
-      final response = await Supabase.instance.client.auth.signUp(
+      final response = await _authService.signUp(
         email: email,
         password: password,
         data: {'full_name': name},
       );
       if (response.user != null) {
-        emit(SuccessState<void>(null));
+        emit(SuccessState<User>(response.user!));
       } else {
-        emit(ErrorState('Falha ao registrar.'));
+        emit(const ErrorState('Falha ao registrar usuário.'));
       }
+    } on AuthException catch (e) {
+      emit(ErrorState(_translateAuthError(e.message)));
     } catch (e) {
-      emit(ErrorState(e.toString()));
+      emit(const ErrorState('Erro de conexão. Verifique sua internet.'));
     }
   }
 
-  
+  /// Faz logout do usuário.
+  Future<void> logout() async {
+    emit(LoadingState());
+    try {
+      await _authService.signOut();
+      emit(InitialState());
+    } catch (e) {
+      emit(const ErrorState('Erro ao fazer logout. Tente novamente.'));
+    }
+  }
+
+  /// Verifica o status de autenticação do usuário.
+  void checkAuthStatus() {
+    try {
+      final user = _authService.currentUser;
+      if (user != null) {
+        emit(SuccessState<User>(user));
+      } else {
+        emit(InitialState());
+      }
+    } catch (e) {
+      emit(InitialState());
+    }
+  }
+
+  /// Traduz mensagens de erro do Supabase para português.
+  String _translateAuthError(String errorMessage) {
+    final lowerError = errorMessage.toLowerCase();
+
+    if (lowerError.contains('invalid login credentials') ||
+        lowerError.contains('invalid credentials')) {
+      return 'Email ou senha incorretos';
+    }
+
+    if (lowerError.contains('email not confirmed') ||
+        lowerError.contains('email not verified')) {
+      return 'Por favor, confirme seu email';
+    }
+
+    if (lowerError.contains('user already registered') ||
+        lowerError.contains('user already exists')) {
+      return 'Este email já está cadastrado';
+    }
+
+    if (lowerError.contains('password') && lowerError.contains('short')) {
+      return 'A senha deve ter no mínimo 6 caracteres';
+    }
+
+    if (lowerError.contains('network') ||
+        lowerError.contains('connection') ||
+        lowerError.contains('timeout')) {
+      return 'Erro de conexão. Verifique sua internet';
+    }
+
+    // Retorna a mensagem original se não houver tradução específica
+    return errorMessage;
+  }
 }
 
