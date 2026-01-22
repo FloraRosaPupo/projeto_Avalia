@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:Avalia/theme.dart';
+import 'package:avalia/theme.dart';
 
 class TestScreens extends StatelessWidget {
   const TestScreens({

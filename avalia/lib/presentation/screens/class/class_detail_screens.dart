@@ -1,16 +1,16 @@
-import 'package:Avalia/core/state/base_state.dart';
-import 'package:Avalia/data/models/class_detail_model.dart';
-import 'package:Avalia/presentation/cubit/class_cubit.dart';
-import 'package:Avalia/presentation/screens/exams/exams_card_screens.dart';
-import 'package:Avalia/presentation/screens/student/student_detail_screens.dart';
+import 'package:avalia/core/state/base_state.dart';
+import 'package:avalia/data/models/class_detail_model.dart';
+import 'package:avalia/presentation/cubit/class_cubit.dart';
+import 'package:avalia/presentation/screens/exams/exams_card_screens.dart';
+import 'package:avalia/presentation/screens/student/student_detail_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:Avalia/presentation/screens/student/student_card_class.dart';
-import 'package:Avalia/presentation/screens/student/student_cretead_modal.dart';
-import 'package:Avalia/presentation/screens/class/class_created_modal.dart';
-import 'package:Avalia/core/navigation/app_route_observer.dart';
-import 'package:Avalia/theme.dart';
-import 'package:Avalia/presentation/cubit/student_cubit.dart';
+import 'package:avalia/presentation/screens/student/student_card_class.dart';
+import 'package:avalia/presentation/screens/student/student_cretead_modal.dart';
+import 'package:avalia/presentation/screens/class/class_created_modal.dart';
+import 'package:avalia/core/navigation/app_route_observer.dart';
+import 'package:avalia/theme.dart';
+import 'package:avalia/presentation/cubit/student_cubit.dart';
 
 class ClassDetailScreens extends StatefulWidget {
   final int classId;

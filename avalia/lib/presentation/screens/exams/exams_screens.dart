@@ -1,14 +1,14 @@
-import 'package:Avalia/core/state/base_state.dart';
-import 'package:Avalia/data/models/exam_model.dart';
-import 'package:Avalia/data/models/student_exam_model.dart';
-import 'package:Avalia/presentation/cubit/exams_cubit.dart';
-import 'package:Avalia/presentation/screens/exams/exams_card_screens.dart';
-import 'package:Avalia/presentation/screens/exams/exams_created_modal.dart';
-import 'package:Avalia/core/navigation/app_route_observer.dart';
+import 'package:avalia/core/state/base_state.dart';
+import 'package:avalia/data/models/exam_model.dart';
+import 'package:avalia/data/models/student_exam_model.dart';
+import 'package:avalia/presentation/cubit/exams_cubit.dart';
+import 'package:avalia/presentation/screens/exams/exams_card_screens.dart';
+import 'package:avalia/presentation/screens/exams/exams_created_modal.dart';
+import 'package:avalia/core/navigation/app_route_observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:Avalia/theme.dart';
+import 'package:avalia/theme.dart';
 
 class ExamsScreens extends StatefulWidget {
   const ExamsScreens({Key? key}) : super(key: key);

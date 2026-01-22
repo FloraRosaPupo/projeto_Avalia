@@ -1,5 +1,5 @@
-import 'package:Avalia/core/state/base_state.dart';
-import 'package:Avalia/presentation/cubit/class_cubit.dart';
+import 'package:avalia/core/state/base_state.dart';
+import 'package:avalia/presentation/cubit/class_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

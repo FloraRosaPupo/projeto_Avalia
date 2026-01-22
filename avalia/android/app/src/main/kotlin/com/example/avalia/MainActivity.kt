@@ -1,4 +1,4 @@
-package com.example.Avalia
+package com.example.avalia
 
 import io.flutter.embedding.android.FlutterActivity
 

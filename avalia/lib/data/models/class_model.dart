@@ -1,4 +1,4 @@
-/// Model for Class (Turma) entity
+ /// Model for Class (Turma) entity
 class ClassModel {
   final int id;
   final String nome;

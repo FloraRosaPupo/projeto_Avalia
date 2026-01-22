@@ -1,6 +1,6 @@
-import 'package:Avalia/presentation/cubit/auth_cubit.dart';
-import 'package:Avalia/presentation/screens/dashboard/dashboard_screens.dart';
-import 'package:Avalia/presentation/screens/register_screens.dart';
+import 'package:avalia/presentation/cubit/auth_cubit.dart';
+import 'package:avalia/presentation/screens/dashboard/dashboard_screens.dart';
+import 'package:avalia/presentation/screens/register_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/state/base_state.dart';

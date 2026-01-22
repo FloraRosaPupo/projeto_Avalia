@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:Avalia/presentation/cubit/exams_cubit.dart';
-import 'package:Avalia/presentation/cubit/class_cubit.dart';
-import 'package:Avalia/core/state/base_state.dart';
-import 'package:Avalia/data/models/class_model.dart';
-import 'package:Avalia/data/models/exam_model.dart';
+import 'package:avalia/presentation/cubit/exams_cubit.dart';
+import 'package:avalia/presentation/cubit/class_cubit.dart';
+import 'package:avalia/core/state/base_state.dart';
+import 'package:avalia/data/models/class_model.dart';
+import 'package:avalia/data/models/exam_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path/path.dart' as path;
 

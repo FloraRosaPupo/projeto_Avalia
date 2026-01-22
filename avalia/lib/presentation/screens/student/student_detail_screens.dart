@@ -1,14 +1,14 @@
-import 'package:Avalia/core/state/base_state.dart';
-import 'package:Avalia/data/models/student_exam_model.dart';
-import 'package:Avalia/data/models/student_performance_model.dart';
-import 'package:Avalia/presentation/cubit/student_performance_cubit.dart';
-import 'package:Avalia/presentation/cubit/exams_cubit.dart';
-import 'package:Avalia/presentation/screens/student/student_details_exams_screens.dart';
+import 'package:avalia/core/state/base_state.dart';
+import 'package:avalia/data/models/student_exam_model.dart';
+import 'package:avalia/data/models/student_performance_model.dart';
+import 'package:avalia/presentation/cubit/student_performance_cubit.dart';
+import 'package:avalia/presentation/cubit/exams_cubit.dart';
+import 'package:avalia/presentation/screens/student/student_details_exams_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:Avalia/presentation/screens/exams/exams_card_screens.dart';
-import 'package:Avalia/presentation/screens/exams/exams_correction_student.dart';
-import 'package:Avalia/core/navigation/app_route_observer.dart';
+import 'package:avalia/presentation/screens/exams/exams_card_screens.dart';
+import 'package:avalia/presentation/screens/exams/exams_correction_student.dart';
+import 'package:avalia/core/navigation/app_route_observer.dart';
 
 class StudentDetailScreens extends StatefulWidget {
   final int studentId;

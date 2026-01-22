@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:Avalia/presentation/cubit/student_cubit.dart';
+import 'package:avalia/presentation/cubit/student_cubit.dart';
 
 class ModalCreatedStudent extends StatefulWidget {
   final int classId;
