@@ -1082,6 +1082,7 @@ class _ReplaceImageModalState extends State<_ReplaceImageModal> {
       final XFile? picked = await _picker.pickImage(
         source: source,
         maxWidth: 1080,
+        preferredCameraDevice: CameraDevice.rear,
       );
       if (picked != null) {
         setState(() {
@@ -1313,19 +1314,21 @@ class _ReplaceImageModalState extends State<_ReplaceImageModal> {
       'Upload concluído!',
     ];
 
-    // Start timer if not already running
-    _messageTimer?.cancel();
-    setState(() {
-      _currentMessageIndex = 0;
-    });
-    _messageTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
-      if (_currentMessageIndex < stepDescriptions.length - 1) {
-        setState(() {
-          _currentMessageIndex++;
-        });
-      } else {
-        timer.cancel();
-      }
+    // Iniciar timer após o build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _messageTimer?.cancel();
+      setState(() {
+        _currentMessageIndex = 0;
+      });
+      _messageTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
+        if (_currentMessageIndex < stepDescriptions.length - 1) {
+          setState(() {
+            _currentMessageIndex++;
+          });
+        } else {
+          timer.cancel();
+        }
+      });
     });
 
     return Container(

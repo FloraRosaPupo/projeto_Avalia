@@ -181,6 +181,7 @@ class _ModalCreatedExamsState extends State<ModalCreatedExams> {
   Future<void> _pickGabarito() async {
     try {
       final XFile? image = await _picker.pickImage(
+        
         source: ImageSource.gallery,
         imageQuality: 85,
       );

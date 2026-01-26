@@ -735,6 +735,7 @@ class _SubmissionUploadModalState extends State<SubmissionUploadModal> {
     final XFile? picked = await _picker.pickImage(
       source: source,
       maxWidth: 1080,
+      preferredCameraDevice: CameraDevice.front,
     );
     if (picked != null) {
       final file = File(picked.path);

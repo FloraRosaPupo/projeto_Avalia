@@ -8,6 +8,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class SubmissionCubit extends Cubit<BaseState> {
   final SupabaseClient _supabase = Supabase.instance.client;
 
+  // Função auxiliar para emitir estados com verificação de isClosed
+  void safeEmit(BaseState state) {
+    if (!isClosed) {
+      emit(state);
+    }
+  }
+
   SubmissionCubit() : super(InitialState());
 
   /// Helper para converter String para int com segurança
@@ -22,7 +29,7 @@ class SubmissionCubit extends Cubit<BaseState> {
   /// Buscar submissão existente para uma prova específica
   Future<void> getSubmission(String provaId, String alunoId) async {
     try {
-      emit(LoadingState());
+      safeEmit(LoadingState());
 
       // Converter para int conforme schema do banco (bigint)
       final provaIdInt = _parseToInt(provaId);
@@ -32,7 +39,9 @@ class SubmissionCubit extends Cubit<BaseState> {
         print(
           'ERROR: provaId ou alunoId inválidos: provaId=$provaId, alunoId=$alunoId',
         );
-        emit(ErrorState('IDs inválidos: provaId=$provaId, alunoId=$alunoId'));
+        safeEmit(
+          ErrorState('IDs inválidos: provaId=$provaId, alunoId=$alunoId'),
+        );
         return;
       }
 
@@ -51,21 +60,21 @@ class SubmissionCubit extends Cubit<BaseState> {
 
       if (response == null) {
         print('No submission found.');
-        emit(SuccessState<SubmissionModel?>(null));
+        safeEmit(SuccessState<SubmissionModel?>(null));
       } else {
         final submission = SubmissionModel.fromJson(response);
         print('Submission parsed successfully: ${submission.id}');
-        emit(SuccessState<SubmissionModel>(submission));
+        safeEmit(SuccessState<SubmissionModel>(submission));
       }
     } catch (e, s) {
       print('Error fetching submission: $e');
       print('Stack trace: $s');
-      emit(ErrorState('Erro ao buscar submissão: $e'));
+      safeEmit(ErrorState('Erro ao buscar submissão: $e'));
     }
   }
 
   void updateSubmission(SubmissionModel submission) {
-    emit(SuccessState<SubmissionModel>(submission));
+    safeEmit(SuccessState<SubmissionModel>(submission));
   }
 
   /// Validação pré-upload (cliente)
@@ -117,7 +126,7 @@ class SubmissionCubit extends Cubit<BaseState> {
     int attemptNumber = 1,
   }) async {
     try {
-      emit(SubmissionUploadingState(0));
+      safeEmit(SubmissionUploadingState(0));
 
       // 1. Validação pré-upload
       final validation = await validateImage(imageFile);
@@ -235,7 +244,7 @@ class SubmissionCubit extends Cubit<BaseState> {
         }
       }
 
-      emit(SubmissionUploadingState(100));
+      safeEmit(SubmissionUploadingState(100));
 
       final submission = SubmissionModel.fromJson(response);
 
@@ -260,7 +269,7 @@ class SubmissionCubit extends Cubit<BaseState> {
   /// Solicitar reprocessamento manual
   Future<void> requestReprocessing(String submissionId) async {
     try {
-      emit(LoadingState());
+      safeEmit(LoadingState());
 
       // Chamar função RPC ou endpoint específico para reprocessamento
       await _supabase.rpc(
@@ -285,7 +294,7 @@ class SubmissionCubit extends Cubit<BaseState> {
   /// Forçar aceitação (override) - apenas para professores
   Future<void> forceAcceptSubmission(String submissionId) async {
     try {
-      emit(LoadingState());
+      safeEmit(LoadingState());
 
       final response = await _supabase
           .from('submissoes')
@@ -350,7 +359,7 @@ class SubmissionCubit extends Cubit<BaseState> {
         emit(SubmissionErrorState('Erro no processamento', 'PROCESSING_ERROR'));
         break;
       default:
-        emit(SuccessState<SubmissionModel>(submission));
+        safeEmit(SuccessState<SubmissionModel>(submission));
     }
   }
 
@@ -362,7 +371,7 @@ class SubmissionCubit extends Cubit<BaseState> {
     int attemptNumber = 1,
   }) async {
     try {
-      emit(SubmissionUploadingState(0));
+      safeEmit(SubmissionUploadingState(0));
 
       // 1. Validação pré-upload
       final validation = await validateImage(imageFile);
@@ -430,7 +439,7 @@ class SubmissionCubit extends Cubit<BaseState> {
 
       final gabaritoUrl = examData['url_prova'] as String?;
 
-      emit(SubmissionUploadingState(100));
+      safeEmit(SubmissionUploadingState(100));
 
       // 5. Atualizar ou criar submissão no banco
       String submissionId;
@@ -607,7 +616,7 @@ class SubmissionCubit extends Cubit<BaseState> {
     required String userId,
   }) async {
     try {
-      emit(SubmissionUploadingState(0));
+      safeEmit(SubmissionUploadingState(0));
 
       // 1. Validação pré-upload
       final validation = await validateImage(imageFile);
@@ -682,7 +691,7 @@ class SubmissionCubit extends Cubit<BaseState> {
         body: requestBody,
       );
 
-      emit(SubmissionUploadingState(100));
+      safeEmit(SubmissionUploadingState(100));
 
       print(
         'DEBUG: replaceSubmissionWithQuickFunction - Response status: ${functionResponse.status}',
@@ -720,34 +729,42 @@ class SubmissionCubit extends Cubit<BaseState> {
           'DEBUG: replaceSubmissionWithQuickFunction - Submission parseado com sucesso: ${finalSubmission.id}',
         );
 
-        emit(SubmissionCompletedState(finalSubmission));
+        if (!isClosed) {
+          emit(SubmissionCompletedState(finalSubmission));
+        }
       } catch (parseError, stackTrace) {
         print(
           'ERROR: replaceSubmissionWithQuickFunction - Erro ao fazer parse da resposta: $parseError',
         );
         print('ERROR: StackTrace: $stackTrace');
         print('ERROR: ResponseData: $responseData');
-        emit(
-          SubmissionErrorState(
-            'Erro ao processar resultado: $parseError',
-            'PARSE_ERROR',
-          ),
-        );
+        if (!isClosed) {
+          emit(
+            SubmissionErrorState(
+              'Erro ao processar resultado: $parseError',
+              'PARSE_ERROR',
+            ),
+          );
+        }
       }
     } catch (e, stackTrace) {
       print('ERROR: replaceSubmissionWithQuickFunction - Erro geral: $e');
       print('ERROR: StackTrace: $stackTrace');
-      emit(
-        SubmissionErrorState(
-          'Erro ao substituir submissão: $e',
-          'REPLACE_ERROR',
-        ),
-      );
+      if (!isClosed) {
+        emit(
+          SubmissionErrorState(
+            'Erro ao substituir submissão: $e',
+            'REPLACE_ERROR',
+          ),
+        );
+      }
     }
   }
 
   void resetToInitial() {
-    emit(InitialState());
+    if (!isClosed) {
+      emit(InitialState());
+    }
   }
 }
 

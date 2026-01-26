@@ -224,19 +224,19 @@ enum SubmissionStatus {
   String get formatted {
     switch (this) {
       case SubmissionStatus.pending:
-        return 'Pending';
+        return 'Pendente';
       case SubmissionStatus.processingUpload:
-        return 'Processing Upload';
+        return 'Processando Upload';
       case SubmissionStatus.processingAnalysis:
-        return 'Processing Analysis';
+        return 'Processando Análise';
       case SubmissionStatus.aiValidation:
-        return 'AI Validation';
+        return 'Validação IA';
       case SubmissionStatus.reviewNeeded:
-        return 'Review Needed';
+        return 'Revisão Necessária';
       case SubmissionStatus.graded:
-        return 'Concluida';
+        return 'Concluída';
       case SubmissionStatus.error:
-        return 'Error';
+        return 'Erro';
     }
   }
 }
