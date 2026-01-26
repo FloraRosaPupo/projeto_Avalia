@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -1067,6 +1068,14 @@ class _ReplaceImageModal extends StatefulWidget {
 class _ReplaceImageModalState extends State<_ReplaceImageModal> {
   final ImagePicker _picker = ImagePicker();
   File? _selectedImage;
+  int _currentMessageIndex = 0;
+  Timer? _messageTimer;
+
+  @override
+  void dispose() {
+    _messageTimer?.cancel();
+    super.dispose();
+  }
 
   Future<void> _pickImage(ImageSource source) async {
     try {
@@ -1121,7 +1130,7 @@ class _ReplaceImageModalState extends State<_ReplaceImageModal> {
         },
         builder: (context, state) {
           if (state is SubmissionUploadingState) {
-            return _buildUploadProgress(context, state.percent.toDouble());
+            return _buildUploadProgress(context);
           } else if (state is SubmissionProcessingState) {
             return _buildProcessingView(context, state);
           } else if (_selectedImage == null) {
@@ -1292,9 +1301,32 @@ class _ReplaceImageModalState extends State<_ReplaceImageModal> {
     );
   }
 
-  Widget _buildUploadProgress(BuildContext context, double percent) {
+  Widget _buildUploadProgress(BuildContext context) {
     String stepText = 'Enviando imagem...';
-    String stepDescription = '${percent.toStringAsFixed(1)}% concluído';
+    List<String> stepDescriptions = [
+      'Preparando envio...',
+      'Iniciando upload...',
+      'Enviando dados...',
+      'Processando imagem...',
+      'Quase pronto...',
+      'Finalizando...',
+      'Upload concluído!',
+    ];
+
+    // Start timer if not already running
+    _messageTimer?.cancel();
+    setState(() {
+      _currentMessageIndex = 0;
+    });
+    _messageTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      if (_currentMessageIndex < stepDescriptions.length - 1) {
+        setState(() {
+          _currentMessageIndex++;
+        });
+      } else {
+        timer.cancel();
+      }
+    });
 
     return Container(
       width: double.infinity,
@@ -1328,7 +1360,7 @@ class _ReplaceImageModalState extends State<_ReplaceImageModal> {
           ),
           const SizedBox(height: 8),
           Text(
-            stepDescription,
+            stepDescriptions[_currentMessageIndex],
             style: const TextStyle(fontSize: 14, color: Colors.grey),
             textAlign: TextAlign.center,
           ),
