@@ -4,7 +4,7 @@ Correção inteligente de provas objetivas a partir de fotos.
 
 Professores tiram uma foto da folha de respostas e recebem, em segundos, a nota, o detalhamento por questão e o ranking da turma.
 
-📸 Foto → 🤖 IA → 📊 Resultado  
+📸 Foto → 🤖 IA → 📊 Resultado
 Sem planilha, sem caneta vermelha, sem dor de cabeça.
 
 ---
@@ -131,3 +131,21 @@ Contribuições são bem-vindas! Para mudanças maiores, abra uma issue antes.
 <div align="center">
 ⭐ Se esse projeto te ajudou ou te inspirou, deixa uma estrela! ⭐
 </div>
+
+
+## Desenvolvimento e validação
+
+O aplicativo está em `avalia`. Use Flutter 3.41.1. Na pasta do aplicativo, execute:
+
+```sh
+flutter pub get
+flutter analyze --no-fatal-infos --no-fatal-warnings
+flutter test
+flutter run
+```
+
+A CI valida análise e testes em pushes e pull requests. Serviços externos precisam de configuração própria.
+
+## Organização por funcionalidade
+
+`avalia/lib/features/` agrupa autenticação, turmas, provas, alunos, dashboard e submissões. Cada área reúne seus modelos, estados e telas; `core/` conserva apenas infraestrutura compartilhada. O repositório não inclui migrações SQL nem o código das Edge Functions descritas acima: o backend precisa ser provisionado separadamente.
