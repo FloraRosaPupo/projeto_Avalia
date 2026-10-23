@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'presentation/screens/login_screen.dart';
-import 'core/navigation/app_route_observer.dart';
-import 'theme.dart';
+import 'package:avalia/features/auth/presentation/screens/login_screen.dart';
+import 'package:avalia/core/navigation/app_route_observer.dart';
+import 'package:avalia/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

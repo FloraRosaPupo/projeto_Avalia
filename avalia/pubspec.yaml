@@ -8,6 +8,8 @@ environment:
   sdk: ^3.8.1
 
 dependencies:
+  bloc: ^9.0.0
+  path: ^1.9.1
   flutter:
     sdk: flutter
 
