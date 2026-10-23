@@ -6,7 +6,7 @@ import 'package:avalia/features/submissions/data/models/submission_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SubmissionCubit extends Cubit<BaseState> {
-  final SupabaseClient _supabase = Supabase.instance.client;
+  final SupabaseClient _supabase;
 
   // Função auxiliar para emitir estados com verificação de isClosed
   void safeEmit(BaseState state) {
@@ -15,7 +15,9 @@ class SubmissionCubit extends Cubit<BaseState> {
     }
   }
 
-  SubmissionCubit() : super(InitialState());
+  SubmissionCubit({SupabaseClient? client})
+    : _supabase = client ?? Supabase.instance.client,
+      super(InitialState());
 
   /// Helper para converter String para int com segurança
   int? _parseToInt(dynamic value) {

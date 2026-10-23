@@ -149,3 +149,15 @@ A CI valida análise e testes em pushes e pull requests. Serviços externos prec
 ## Organização por funcionalidade
 
 `avalia/lib/features/` agrupa autenticação, turmas, provas, alunos, dashboard e submissões. Cada área reúne seus modelos, estados e telas; `core/` conserva apenas infraestrutura compartilhada. O repositório não inclui migrações SQL nem o código das Edge Functions descritas acima: o backend precisa ser provisionado separadamente.
+
+
+## Licença
+
+Não há licença de distribuição definida neste repositório. Os direitos de terceiros e as atribuições existentes devem ser respeitados; esta revisão não concede permissão de redistribuição.
+
+
+## Organização e manutenção
+
+Features auth/classes/students/exams/submissions/dashboard agrupam seus modelos e apresentação. `ClassCubit` depende do contrato `ClassRepository`, com implementação Supabase separada; autenticação também usa contrato. Os demais Cubits recebem cliente Supabase por injeção onde acessavam o singleton. Cubit exerce o papel de estado da apresentação; não foi duplicado com outro ViewModel.
+
+Veja [a revisão de desenvolvimento](docs/REVISAO.md) para decisões, testes e limites, e [o guia de contribuição](CONTRIBUTING.md) para o fluxo de manutenção.

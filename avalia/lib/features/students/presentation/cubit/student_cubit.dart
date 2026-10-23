@@ -5,7 +5,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 part 'package:avalia/features/students/presentation/state/student_state.dart';
 
 class StudentCubit extends Cubit<StudentState> {
-  StudentCubit() : super(const StudentState());
+  final SupabaseClient _client;
+  StudentCubit({SupabaseClient? client})
+    : _client = client ?? Supabase.instance.client,
+      super(const StudentState());
 
   Future<void> createStudent({
     required int turmaId,
@@ -15,7 +18,7 @@ class StudentCubit extends Cubit<StudentState> {
     emit(const StudentState(status: StudentStatus.loading));
 
     try {
-      final supabase = Supabase.instance.client;
+      final supabase = _client;
       final user = supabase.auth.currentUser;
 
       if (user == null) {

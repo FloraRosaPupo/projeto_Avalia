@@ -6,13 +6,16 @@ import 'package:avalia/features/exams/data/models/exam_model.dart';
 import 'package:avalia/features/students/data/models/student_exam_model.dart';
 
 class ExamsCubit extends Cubit<BaseState> {
-  ExamsCubit() : super(InitialState());
+  final SupabaseClient _client;
+  ExamsCubit({SupabaseClient? client})
+    : _client = client ?? Supabase.instance.client,
+      super(InitialState());
 
   Future<void> getStudentByUserID(String userId) async {
     emit(LoadingState());
     try {
       print('Fetching exams for studentId: $userId');
-      final response = await Supabase.instance.client.rpc(
+      final response = await _client.rpc(
         'get_provas_por_user',
         params: {'p_user_id': userId},
       );
@@ -44,18 +47,14 @@ class ExamsCubit extends Cubit<BaseState> {
 
   Future<String?> uploadGabarito(File imageFile) async {
     try {
-      final userId = Supabase.instance.client.auth.currentUser?.id;
+      final userId = _client.auth.currentUser?.id;
       if (userId == null) throw Exception('Usuário não autenticado');
 
       final fileName = '${userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
-      await Supabase.instance.client.storage
-          .from('gabaritos')
-          .upload(fileName, imageFile);
+      await _client.storage.from('gabaritos').upload(fileName, imageFile);
 
-      final url = Supabase.instance.client.storage
-          .from('gabaritos')
-          .getPublicUrl(fileName);
+      final url = _client.storage.from('gabaritos').getPublicUrl(fileName);
 
       return url;
     } catch (e) {
@@ -76,16 +75,16 @@ class ExamsCubit extends Cubit<BaseState> {
       // Encontrar o índice de 'gabaritos' e pegar o próximo segmento
       final gabaritosIndex = pathSegments.indexOf('gabaritos');
       if (gabaritosIndex == -1 || gabaritosIndex >= pathSegments.length - 1) {
-        throw Exception('URL inválida: não foi possível extrair nome do arquivo');
+        throw Exception(
+          'URL inválida: não foi possível extrair nome do arquivo',
+        );
       }
 
       final fileName = pathSegments[gabaritosIndex + 1];
 
       print('Deletando gabarito: $fileName');
 
-      await Supabase.instance.client.storage
-          .from('gabaritos')
-          .remove([fileName]);
+      await _client.storage.from('gabaritos').remove([fileName]);
 
       print('Gabarito deletado com sucesso: $fileName');
     } catch (e) {
@@ -98,7 +97,7 @@ class ExamsCubit extends Cubit<BaseState> {
   Future<void> createExam(Map<String, dynamic> examData) async {
     emit(LoadingState());
     try {
-      final response = await Supabase.instance.client
+      final response = await _client
           .from('provas')
           .insert(examData)
           .select()
@@ -126,7 +125,7 @@ class ExamsCubit extends Cubit<BaseState> {
   Future<void> updateExam(int examId, Map<String, dynamic> examData) async {
     emit(LoadingState());
     try {
-      final response = await Supabase.instance.client
+      final response = await _client
           .from('provas')
           .update(examData)
           .eq('id', examId)
@@ -155,7 +154,7 @@ class ExamsCubit extends Cubit<BaseState> {
     emit(LoadingState());
     try {
       print('Fetching exams for studentId: $studentId');
-      final response = await Supabase.instance.client.rpc(
+      final response = await _client.rpc(
         'get_provas_do_aluno',
         params: {'p_aluno_id': studentId},
       );
@@ -191,7 +190,7 @@ class ExamsCubit extends Cubit<BaseState> {
     try {
       print('🔍 Buscando prova completa pelo ID: $examId');
 
-      final response = await Supabase.instance.client
+      final response = await _client
           .from('provas')
           .select()
           .eq('id', examId)

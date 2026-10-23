@@ -4,12 +4,15 @@ import 'package:avalia/core/state/base_state.dart';
 import 'package:avalia/features/students/data/models/student_performance_model.dart';
 
 class StudentPerformanceCubit extends Cubit<BaseState> {
-  StudentPerformanceCubit() : super(InitialState());
+  final SupabaseClient _client;
+  StudentPerformanceCubit({SupabaseClient? client})
+    : _client = client ?? Supabase.instance.client,
+      super(InitialState());
 
   Future<void> getStudentPerformance(int studentId) async {
     emit(LoadingState());
     try {
-      final response = await Supabase.instance.client
+      final response = await _client
           .from('v_alunos_desempenho_turma')
           .select()
           .eq('aluno_id', studentId)

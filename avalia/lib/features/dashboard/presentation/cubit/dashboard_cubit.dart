@@ -8,7 +8,10 @@ import 'package:avalia/features/dashboard/data/models/dashboard_model.dart';
 /// Substitua `your_rpc_function` pelo nome da sua função RPC e ajuste os
 /// parâmetros conforme necessário.
 class DashboardCubit extends Cubit<BaseState> {
-  DashboardCubit() : super(InitialState());
+  final SupabaseClient _client;
+  DashboardCubit({SupabaseClient? client})
+    : _client = client ?? Supabase.instance.client,
+      super(InitialState());
 
   /// Chama a RPC `public.get_recent_activities_json`.
   ///
@@ -23,7 +26,7 @@ class DashboardCubit extends Cubit<BaseState> {
       emit(LoadingState());
     }
     try {
-      final response = await Supabase.instance.client.rpc(
+      final response = await _client.rpc(
         'get_recent_activities_json',
         params: {'p_user': userId, 'p_limit': limit},
       );
