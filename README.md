@@ -1,69 +1,29 @@
-# 📚 Avalia
+# Avalia — Gestão de Turmas e Provas
 
-Correção inteligente de provas objetivas a partir de fotos.
+## Descrição
 
-Professores tiram uma foto da folha de respostas e recebem, em segundos, a nota, o detalhamento por questão e o ranking da turma.
+Aplicativo Flutter para professores organizarem turmas, alunos, provas e submissões. A interface prevê envio de fotos e consulta de resultados de correção. Autenticação, armazenamento, RPCs e correção externa dependem de um backend Supabase configurado; as migrações e Edge Functions desse backend não estão incluídas neste repositório.
 
-📸 Foto → 🤖 IA → 📊 Resultado
-Sem planilha, sem caneta vermelha, sem dor de cabeça.
+## Stack e bibliotecas
 
----
+Flutter/Dart, bloc/flutter_bloc (Cubit), supabase_flutter, equatable, image_picker, file_picker e google_generative_ai.
 
-## ✨ Visão Geral
+Dependências e versões declaradas: [avalia/pubspec.yaml](avalia/pubspec.yaml).
 
-O Avalia é uma plataforma que automatiza a correção de provas objetivas usando inteligência artificial. A ideia é reduzir o tempo e o esforço na correção, oferecendo feedback imediato e organização clara dos resultados por turma.
+## Funcionalidades
 
----
+- Cadastro e consulta de turmas e alunos.
+- Criação e organização de provas e seus gabaritos.
+- Envio de imagens e consulta de submissões, com processamento dependente do backend externo.
+- Painel para acompanhar resultados e desempenho.
 
-## 🎯 Objetivo
+## Licença
 
-- Reduzir o tempo e o esforço na correção de provas.
-- Oferecer correção automática confiável.
-- Fornecer feedback imediato ao professor.
-- Manter organização clara dos resultados por turma.
+Não há uma licença de distribuição definida para este repositório. Nenhuma licença MIT, Apache ou equivalente é concedida por este README. As atribuições e os direitos dos materiais de terceiros permanecem preservados.
 
----
+## Validação e limites
 
-## 🚀 Funcionalidades do MVP
-
-### 👨‍🏫 Área do Professor
-
-- Interface para gerenciamento de provas e turmas.
-- Visualização de resultados e ranking por prova/turma.
-
-### 📚 Gestão Acadêmica
-
-- Cadastro de matérias.
-- Criação e gerenciamento de turmas.
-- Associação de turmas a uma ou mais matérias.
-
-### 📝 Provas
-
-- Criação de provas com:
-  - Título
-  - Número de questões
-  - Alternativas (A–E)
-  - Gabarito
-- Bloqueio automático do gabarito após o início da correção.
-
-### 📷 Correção por Foto (IA)
-
-- Envio da imagem da folha de respostas.
-- Processamento via Google Gemini:
-  - Identificação das alternativas marcadas.
-  - Detecção de rasuras e respostas inválidas.
-  - Comparação direta com o gabarito.
-- Retorno imediato com:
-  - Nota final
-  - Acertos e erros por questão
-
-### 📊 Resultados
-
-- Lista de submissões por prova.
-- Exibição de nota, aluno e horário de envio.
-- Ranking automático da turma.
-
----
+Modelo de prova, erro/recuperação de turmas, criação seguida de recarga e conclusão após fechamento. Upload, RPCs e correção externa dependem do backend configurado.
 
 ## 🧠 Arquitetura
 
@@ -90,28 +50,6 @@ Flutter App (resultados e ranking)
 
 ---
 
-## 🛠️ Stack Tecnológica
-
-| Camada     | Tecnologia                   |
-|------------|-----------------------------:|
-| Frontend   | Flutter                      |
-| Backend    | Supabase                     |
-| Banco      | PostgreSQL                   |
-| Storage    | Supabase Storage             |
-| Funções    | Supabase Edge Functions      |
-| IA         | Google Gemini API            |
-
----
-
-## 🔒 Segurança e Confiabilidade
-
-- Autenticação via Supabase Auth.
-- Gabarito bloqueado após início das correções.
-- Processamento isolado por prova.
-- Histórico de submissões preservado.
-
----
-
 ## 🧭 Roadmap
 
 - Reprocessamento de imagens com baixa qualidade.
@@ -132,7 +70,6 @@ Contribuições são bem-vindas! Para mudanças maiores, abra uma issue antes.
 ⭐ Se esse projeto te ajudou ou te inspirou, deixa uma estrela! ⭐
 </div>
 
-
 ## Desenvolvimento e validação
 
 O aplicativo está em `avalia`. Use Flutter 3.41.1. Na pasta do aplicativo, execute:
@@ -149,12 +86,6 @@ A CI valida análise e testes em pushes e pull requests. Serviços externos prec
 ## Organização por funcionalidade
 
 `avalia/lib/features/` agrupa autenticação, turmas, provas, alunos, dashboard e submissões. Cada área reúne seus modelos, estados e telas; `core/` conserva apenas infraestrutura compartilhada. O repositório não inclui migrações SQL nem o código das Edge Functions descritas acima: o backend precisa ser provisionado separadamente.
-
-
-## Licença
-
-Não há licença de distribuição definida neste repositório. Os direitos de terceiros e as atribuições existentes devem ser respeitados; esta revisão não concede permissão de redistribuição.
-
 
 ## Organização e manutenção
 
